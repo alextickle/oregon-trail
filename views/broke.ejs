@@ -1,12 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-  <h1><%= game.recentlyBroken %> is broken!</h1>
-    <% include partials/game-status %>
-    <a href="/turn"><button type="button" name="button">Continue</button></a>
-  </body>
-</html>
+<h1><%= game.recentlyBroken %> is broken!</h1>
+<% include partials/game-status %>
+<a href="/turn"><button type="button" name="button">Continue</button></a>

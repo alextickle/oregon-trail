@@ -16,6 +16,7 @@ class Game {
     this.recentlyRecovered = ""
     this.recentlyDeceased = ""
     this.recentlyFellIll = ""
+    this.recentlyFound= ""
     this.brokeDown = false
     this.locations = [
         { name: "Rachel's Death Valley",
@@ -32,7 +33,7 @@ class Game {
           source: "b.png"},
         { name: "Brady's bungalow",
           source: "b.png"}
-      ] // all the locations in the game
+      ] // all the locations in the this
     this.daysSpent = 0;
     this.currentLocation = 0; // index of the locations array
     this.diseases = [
@@ -50,13 +51,14 @@ class Game {
     else {
       this.id = id
     }
+    this.loseReason = ""
   }
 
   save(){
-    fs.writeFileSync('game' + this.id + '.json', JSON.stringify(this))
+    fs.writeFileSync('this' + this.id + '.json', JSON.stringify(this))
   }
   load(){
-    var rawFile = fs.readFileSync('game' + this.id + '.json')
+    var rawFile = fs.readFileSync('this' + this.id + '.json')
     var tempGame = JSON.parse(rawFile)
     this.partyMembers = tempGame.partyMembers
     this.supplies = tempGame.supplies
@@ -81,8 +83,16 @@ class Game {
     return false
   }
   checkLose(){
-    if(this.bodyCount() == 0 || this.supplies.poundsFood <= 0 || this.brokeDown){
+    if(this.bodyCount() == 0){
+      this.loseReason = "Your entire party is dead!"
       return true
+    }
+    if (this.supplies.poundsFood <= 0){
+      this.loseReason = "You ran out of food!"
+      return true
+    }
+    if (this.brokeDown){
+      this.loseReason = "Your wagon broke down!!"
     }
     return false
   }
@@ -117,6 +127,15 @@ class Game {
     return false
   }
   getBroke(chance){
+    //let i = partyMemberIndex
+    let randomNum = Math.floor(Math.random() * chance) + 1
+    if (randomNum === 1){
+      return true
+    }
+    return false
+  }
+
+  found(chance){
     //let i = partyMemberIndex
     let randomNum = Math.floor(Math.random() * chance) + 1
     if (randomNum === 1){
@@ -238,9 +257,52 @@ class Game {
     }
     return false
   }
+  lookAround(){
+    let allSupplies = Object.getOwnPropertyNames(this.supplies)
+    let selectedSupply
+    for (var i = 0; i<allSupplies.length; i++){
+      selectedSupply = allSupplies[i]
+      if(this.found(10)){
+        switch(selectedSupply){
+          case "poundsFood":
+            this.supplies.poundsFood += 50
+            this.recentlyFound = "50 pounds of food"
+            break;
+          case "oxen":
+            this.supplies.oxen += 1
+            this.recentlyFound = "one ox"
+            break;
+          case "wagonWheels":
+            this.supplies.wagonWheels += 1
+            this.recentlyFound = "one wagon wheel"
+            break;
+          case "wagonAxels":
+            this.supplies.wagonAxels += 1
+            this.recentlyFound = "one wagon axel"
+            break;
+          case "wagonTongues":
+            this.supplies.wagonTongues += 1
+            this.recentlyFound = "one wagon tongue"
+            break;
+          case "setsClothing":
+            this.supplies.setsClothing += 1
+            this.recentlyFound = "one set of clothing"
+            break;
+          default:
+            this.recentlyFound = "nothing"
+            break;
+        }
+        this.daysSpent += 2;
+        this.supplies.poundsFood -= (2 * this.bodyCount()) ;
+        return true
+      }
+    }
+    this.recentlyFound = "nothing"
+    return false
+  }
   takeTurn(){
     if (this.currentLocation === this.locations.length-1 ){
-      return "game-won"
+      return "this-won"
     }
     if (this.checkLose()){
       return "lose"

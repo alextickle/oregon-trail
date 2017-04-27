@@ -9,7 +9,7 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
-//app.use(expressLayouts);
+app.use(expressLayouts);
 
 function loadGame(request){
   let gameId = request.cookies.gameId
@@ -20,6 +20,13 @@ function loadGame(request){
 
 app.get('/', function(request, response) {
   response.render('home');
+});
+
+app.get('/look-around', function(request, response) {
+  let game = loadGame(request)
+  game.lookAround()
+  game.save()
+  response.render('look-around', {game: game});
 });
 
 app.post('/nameTravelers', function(request, response){
@@ -40,7 +47,6 @@ app.post('/outset', function(request, response){
   }
   //save the game
   game.save()
-console.log(game.id);
   //persist this game's id by writing the game id into a cookie
   response.cookie('gameId', game.id)
   //display the outset page
