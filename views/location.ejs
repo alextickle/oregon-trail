@@ -1,7 +1,12 @@
-<img src=<%=game.locations[game.currentLocation].source %> alt="">
-<h1><%=game.locations[game.currentLocation].name%></h1>
-<p>lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
-<% include partials/game-status %>
-
-<a href="/look-around"><button type="button" name="button">Look Around</button></a>
-<a href="/turn"><button type="button" name="button">Next Location</button></a>
+<div class="row">
+  <img src=<%=game.locations[game.currentLocation].source %> alt="">
+  <h1><%=game.locations[game.currentLocation].name%></h1>
+  <p>lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
+</div>
+<div class="row">
+  <% include partials/game-status %>
+</div>
+<div class="row">
+  <a href="/look-around"><button type="button" name="button">Look Around</button></a>
+  <a href="/turn"><button type="button" name="button">Next Location</button></a>
+</div>

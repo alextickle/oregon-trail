@@ -8,9 +8,20 @@ h1 {
   color: green;
 }
 
+h4 {
+  text-align: center;
+  color: white;
+}
+
 table {
   border: black solid 2px;
   border-collapse: collapse;
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+button {
+  margin: auto;
 }
 
 td, th {
