@@ -55,10 +55,10 @@ class Game {
   }
 
   save(){
-    fs.writeFileSync('this' + this.id + '.json', JSON.stringify(this))
+    fs.writeFileSync('./models/games/' + this.id + '.json', JSON.stringify(this))
   }
   load(){
-    var rawFile = fs.readFileSync('this' + this.id + '.json')
+    var rawFile = fs.readFileSync('./models/games/' + this.id + '.json')
     var tempGame = JSON.parse(rawFile)
     this.partyMembers = tempGame.partyMembers
     this.supplies = tempGame.supplies
