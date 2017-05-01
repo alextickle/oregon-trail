@@ -2,7 +2,12 @@ body {
   background-color: black;
 }
 
-#location {
+input {
+  background-color: black;
+  color: white;
+}
+
+#locationName {
   text-align: center;
   background-color: white;
   color: black;
@@ -14,8 +19,12 @@ body {
   font-family: 'VT323', monospace;
 }
 
-h4 {
+h1, h4 {
   text-align: center;
+  color: white;
+}
+
+label {
   color: white;
 }
 
@@ -76,7 +85,16 @@ button {
   margin-right: 20px;
 }
 
-img {
+#homeBanner {
+  margin-top: 30px;
+  height: 175px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 30px;
+}
+
+#locationImg {
   display: block;
   margin-left: auto;
   margin-right: auto;
