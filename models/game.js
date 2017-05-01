@@ -17,23 +17,29 @@ class Game {
     this.recentlyDeceased = ""
     this.recentlyFellIll = ""
     this.recentlyFound= ""
-    this.brokeDown = false
+    this.brokenDown = false
     this.locations = [
-        { name: "Rachel's Death Valley",
-          source: "a.png"},
-        { name: "Brady's Terranium",
-          source: "b.png"},
-        { name: "nicks's Terranium",
-          source: "b.png"},
-        { name: "alex's Terranium",
-          source: "b.png"},
-        { name: "antonio's Terranium",
-          source: "b.png"},
-        { name: "gabe's Terranium",
-          source: "b.png"},
-        { name: "Brady's bungalow",
-          source: "b.png"}
-      ] // all the locations in the this
+        { name: "Chimney Rock",
+          source: "/images/chimney-rock.jpg"},
+        { name: "Fort Laramie",
+          source: "/images/fort-laramie.jpg"},
+        { name: "Independence Rock",
+          source: "/images/independence-rock.jpg"},
+        { name: "Kansas River Crossing",
+          source: "/images/kansas-river-crossing.jpg"},
+        { name: "Fort Kearney",
+          source: "/images/fort-kearney.jpg"},
+        { name: "South Pass",
+          source: "/images/south-pass.jpg"},
+        { name: "Green River Crossing",
+          source: "/images/green-river-crossing.jpg"},
+        { name: "Fort Boise",
+          source: "/images/fort-boise.jpg"},
+        { name: "Blue Mountains",
+          source: "/images/blue-mountains.jpg"},
+        { name: "The Dalles",
+          source: "/images/the-dalles.jpg"}
+      ]
     this.daysSpent = 0;
     this.currentLocation = 0; // index of the locations array
     this.diseases = [
@@ -65,7 +71,7 @@ class Game {
     this.locations = tempGame.locations
     this.daysSpent = tempGame.daysSpent
     this.currentLocation = tempGame.currentLocation
-    this.brokeDown = tempGame.brokeDown
+    this.brokenDown = tempGame.brokenDown
   }
   checkWagon(){
     let allSupplies = Object.getOwnPropertyNames(this.supplies)
@@ -74,7 +80,7 @@ class Game {
         let selectedSupply = allSupplies[i]
         this.supplies[selectedSupply] -= 1
         if (this.supplies[selectedSupply] < 0){
-          this.brokeDown = true
+          this.brokenDown = true
         }
         this.recentlyBroken = selectedSupply
         return true
@@ -91,7 +97,7 @@ class Game {
       this.loseReason = "You ran out of food!"
       return true
     }
-    if (this.brokeDown){
+    if (this.brokenDown){
       this.loseReason = "Your wagon broke down!!"
     }
     return false

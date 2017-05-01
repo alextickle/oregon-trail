@@ -1,11 +1,16 @@
 body {
-  background-color: green;
+  background-color: black;
 }
 
 h1 {
   text-align: center;
   background-color: white;
-  color: green;
+  color: black;
+  border: green solid 5px;
+}
+
+#location {
+  font-family: 'Bookman Old Style';
 }
 
 h4 {
@@ -16,8 +21,8 @@ h4 {
 table {
   border: black solid 2px;
   border-collapse: collapse;
-  margin-top: 50px;
-  margin-bottom: 20px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 button {
@@ -25,16 +30,53 @@ button {
 }
 
 td, th {
-  background-color: white;
-  border: black solid 2px;
-  height: 20px;
-  padding: 10px;
+  background-color: black;
+  border: white solid 2px;
+  height: 10px;
+  padding: 5px;
+  color: white;
+}
+
+#days {
+  clear: left;
 }
 
 #players {
   float: left;
+  margin-left: 75px;
 }
 
 #supplies {
   float: right;
+  margin-right: 75px;
+}
+
+.row {
+  margin-top: 5px;
+}
+
+#look {
+  display: inline;
+  margin-left: 150px;
+  margin-right: 20px;
+  background-color: black;
+  border: white solid 2px;
+  color: white;
+}
+
+#next {
+  background-color: black;
+  border: white solid 2px;
+  color: white;
+  display: inline;
+  margin-right: 30px;
+  margin-right: 20px;
+}
+
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: 200px;
+  border: white solid 5px;
 }
