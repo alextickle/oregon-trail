@@ -2,15 +2,16 @@ body {
   background-color: black;
 }
 
-h1 {
+#location {
   text-align: center;
   background-color: white;
   color: black;
-  border: green solid 5px;
+  border: green solid 2px;
+  font-weight: bold;
 }
 
-#location {
-  font-family: 'Bookman Old Style';
+body {
+  font-family: 'VT323', monospace;
 }
 
 h4 {
@@ -33,8 +34,9 @@ td, th {
   background-color: black;
   border: white solid 2px;
   height: 10px;
-  padding: 5px;
+  padding: 2px;
   color: white;
+  font-size: 150%;
 }
 
 #days {
@@ -51,23 +53,24 @@ td, th {
   margin-right: 75px;
 }
 
-.row {
-  margin-top: 5px;
-}
-
 #look {
   display: inline;
   margin-left: 150px;
   margin-right: 20px;
+}
+
+button {
+  margin-top: 5px;
   background-color: black;
   border: white solid 2px;
   color: white;
 }
 
+#top-row {
+  margin-top: 10px;
+}
+
 #next {
-  background-color: black;
-  border: white solid 2px;
-  color: white;
   display: inline;
   margin-right: 30px;
   margin-right: 20px;
@@ -77,6 +80,6 @@ img {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  height: 200px;
+  height: 175px;
   border: white solid 5px;
 }
