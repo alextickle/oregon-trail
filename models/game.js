@@ -76,7 +76,7 @@ class Game {
     this.brokenDown = tempGame.brokenDown;
   };
 
-  checkWagon(){
+  checkBrokeDown(){
     let allSupplies = Object.getOwnPropertyNames(this.supplies);
     for (var i = 0; i<4; i++){
       if(this.getBroke(10)){
@@ -342,16 +342,9 @@ class Game {
       }
       return "sick";
     }
-    if(this.checkWagon()){
+    if(this.checkBrokeDown()){
       return "broke";
     }
-    //check if recovered
-    //check if sick
-    // check if dead
-
-    //check if damage
-    //decrement supplies
-    //if all false, next location
     this.currentLocation++;
     this.supplies.poundsFood.quantity -= (5 * this.headCount()) ;
     if (this.supplies.poundsFood.quantity < 0){

@@ -70,6 +70,10 @@ app.get('/look-around', function(request, response) {
   response.render('look-around', {game: game});
 });
 
+app.get('/hunt', function(request, response) {
+  response.render('hunt', {layout: false});
+});
+
 app.listen(3000, function(){
   console.log('listening on port 3000');
 });
