@@ -15,6 +15,7 @@ var state = {
   grid: [],
   manPos: 10,
   huntTimer: "",
+  reloaded: true,
   render: function(){
     for (var i = 0; i < 20; i++) {
       for (var j = 0; j < 20; j++) {
@@ -27,6 +28,9 @@ var state = {
         else if (this.grid[i][j] == "b"){
           document.getElementById(i + "-" + j).setAttribute("class", "bullet");
         }
+        else if (this.grid[i][j] == "d"){
+          document.getElementById(i + "-" + j).setAttribute("class", "dead");
+        }
         else {
           document.getElementById(i + "-" + j).setAttribute("class", "blank");
         }
@@ -36,7 +40,7 @@ var state = {
   // all animals advance right one column
   animalsMove: function(){
     for (var a = 0; a < 20; a++) {
-      for (var b = 18; b >= 0; b--) {
+      for (var b = 19; b >= 0; b--) {
         if (this.grid[a][b] == "a"){
           this.grid[a][b] = "";
           this.grid[a][b + 1] = "a";
@@ -46,7 +50,7 @@ var state = {
   },
   currentBullet: {
       column: this.manPos,
-      row: 19,
+      row: 18,
       timer: ""
   }
 }
@@ -112,23 +116,36 @@ function startAnimals(){
 
 function shoot(){
   var bulletTimer = setInterval(bulletAdvances, 50)
+  state.reloaded = false;
   state.currentBullet.timer = bulletTimer;
   state.currentBullet.column = state.manPos;
 }
 
 function bulletAdvances(){
-  if (state.currentBullet.row > 0){
-    state.grid[state.currentBullet.row][state.currentBullet.column] = "";
-    state.grid[state.currentBullet.row - 1][state.currentBullet.column] = "b";
-    state.currentBullet.row -= 1;
+  if (state.currentBullet.row >= 0){
+    if (state.currentBullet.row == 0){
+      state.grid[state.currentBullet.row][state.currentBullet.column] = "";
+      state.currentBullet.row -= 1;
+    }
+    else {
+      if (state.grid[state.currentBullet.row - 1][state.currentBullet.column] == "a"){
+        state.grid[state.currentBullet.row - 1][state.currentBullet.column] = "d";
+        state.grid[state.currentBullet.row][state.currentBullet.column] = "";
+        clearTimeout(state.currentBullet.timer);
+        state.reloaded = true;
+        state.currentBullet.row = 18;
+      }
+      else {
+        state.grid[state.currentBullet.row - 1][state.currentBullet.column] = "b";
+        state.grid[state.currentBullet.row][state.currentBullet.column] = "";
+        state.currentBullet.row -= 1;
+      }
+    }
   }
   else {
     clearTimeout(state.currentBullet.timer);
-    for (var row = 0; row < 19; row++){
-      state.grid[row][state.currentBullet.column] = "";
-      state.render();
-      state.currentBullet.row = 19;
-    }
+    state.reloaded = true;
+    state.currentBullet.row = 18;
   }
   state.render();
 }
@@ -154,7 +171,9 @@ $(document).keydown(function(e) {
           break;
 
         case 38: // up
-          shoot();
+          if (state.reloaded){
+              shoot();
+          }
           break;
 
         case 39: // right

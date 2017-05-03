@@ -17,6 +17,10 @@ td {
   background-color: brown;
 }
 
+.dead {
+  background-color: red;
+}
+
 .man {
   background-color: blue;
 }
