@@ -24,7 +24,7 @@ var state = {
         else if (this.grid[i][j] == "m"){
           document.getElementById(i + "-" + j).setAttribute("class", "man");
         }
-        else if (this.grid[i][j] == "l"){
+        else if (this.grid[i][j] == "b"){
           document.getElementById(i + "-" + j).setAttribute("class", "bullet");
         }
         else {
@@ -36,11 +36,10 @@ var state = {
   // all animals advance right one column
   animalsMove: function(){
     for (var a = 0; a < 20; a++) {
-      for (var b = 0; b < 18; b++) {
+      for (var b = 18; b >= 0; b--) {
         if (this.grid[a][b] == "a"){
           this.grid[a][b] = "";
           this.grid[a][b + 1] = "a";
-          console.log("a: " + a + " - b: " + b);
         }
       }
     }
@@ -66,9 +65,9 @@ function manAlive(){
 
 function generateAnimal(){
   var initialPosition = Math.floor(Math.random() * 19);
-  state.animalsMove();
   state.grid[initialPosition][0] = "a";
   state.render();
+  state.animalsMove();
 }
 
 function moveRight(){
@@ -119,6 +118,7 @@ function shoot(){
 
 function bulletAdvances(){
   if (state.currentBullet.row > 0){
+    state.grid[state.currentBullet.row][state.currentBullet.column] = "";
     state.grid[state.currentBullet.row - 1][state.currentBullet.column] = "b";
     state.currentBullet.row -= 1;
   }
