@@ -1,8 +1,3 @@
-// TODO add larger asteroids? generate alien that can shoot back?
-
-var points = 0;
-var laserCharge = 0;
-
 function initGrid(){
   var grid = document.getElementById("grid")
   var currentRow;
@@ -16,88 +11,41 @@ function initGrid(){
   }
 }
 
-function initLaserChargeBar(){
-  var laserChargeBar = document.getElementById("laserChargeBar")
-  var currentRow;
-  var currentCell;
-  for (var i = 0; i < 15; i++) {
-    currentRow = laserChargeBar.insertRow(0);
-    currentCell = currentRow.insertCell(0);
-    currentCell.id = "l" + i;
-  }
-}
-
 var state = {
   grid: [],
   manPos: 10,
-  asteroidTimer: "",
-  laserChargeTimer: "",
-  pointCountTimer: "",
-  level: 1,
+  huntTimer: "",
   render: function(){
     for (var i = 0; i < 20; i++) {
       for (var j = 0; j < 20; j++) {
         if (this.grid[i][j] == "a"){
-          document.getElementById(i + "-" + j).setAttribute("class", "asteroid");
+          document.getElementById(i + "-" + j).setAttribute("class", "animal");
         }
         else if (this.grid[i][j] == "m"){
           document.getElementById(i + "-" + j).setAttribute("class", "man");
         }
         else if (this.grid[i][j] == "l"){
-          document.getElementById(i + "-" + j).setAttribute("class", "laser");
+          document.getElementById(i + "-" + j).setAttribute("class", "bullet");
         }
         else {
           document.getElementById(i + "-" + j).setAttribute("class", "blank");
         }
       }
     }
-
-    // update points
-    document.getElementById("points").innerHTML = points;
-    var newLevel = Math.floor(points / 5000) + 1;
-    if (newLevel != state.level){
-      state.level++;
-      console.log("level change: " + state.level);
-      clearTimeout(state.asteroidTimer);
-      startAsteroids();
-    }
-    // update laser charge
-    for (var i = 0; i < 15; i++) {
-      if (i <= laserCharge){
-        document.getElementById("l" + i).setAttribute("class", "laser");
-      }
-      else {
-        document.getElementById("l" + i).setAttribute("class", "blank");
-      }
-    }
-    if (laserCharge == 14){
-      document.getElementById("laserChargeText").innerHTML = "CHARGED";
-      document.getElementById("laserChargeText").setAttribute("class", "charged");
-    }
   },
-  // all asteroids fall one row down
-  gravity: function(){
-    for (var i = 19; i >= 0; i--) {
-      for (var j = 0; j < 20; j++) {
-        if (this.grid[i][j] == "a"){
-          if (i == 19 && this.grid[i][j] != "m"){
-            this.grid[i][j] = "";
-          }
-          else {
-            this.grid[i][j] = "";
-            this.grid[i + 1][j] = "a";
-          }
+  // all animals advance right one column
+  animalsMove: function(){
+    for (var a = 0; a < 20; a++) {
+      for (var b = 0; b < 18; b++) {
+        if (this.grid[a][b] == "a"){
+          this.grid[a][b] = "";
+          this.grid[a][b + 1] = "a";
+          console.log("a: " + a + " - b: " + b);
         }
       }
     }
-    if (!manAlive()){
-      clearTimeout(state.asteroidTimer);
-      clearTimeout(state.pointCountTimer);
-      clearTimeout(state.laserChargeTimer);
-      $(document).unbind("keydown");
-    }
   },
-  currentLaser: {
+  currentBullet: {
       column: this.manPos,
       row: 19,
       timer: ""
@@ -116,10 +64,10 @@ function manAlive(){
   return alive;
 }
 
-function generateAsteroid(){
-  var initialPosition = Math.floor(Math.random() * 20);
-  state.gravity();
-  state.grid[0][initialPosition] = "a";
+function generateAnimal(){
+  var initialPosition = Math.floor(Math.random() * 19);
+  state.animalsMove();
+  state.grid[initialPosition][0] = "a";
   state.render();
 }
 
@@ -159,34 +107,28 @@ function moveLeft(){
   state.render();
 }
 
-function startLaserCharging(){
-  state.laserChargeTimer = setInterval(chargeLaser, 100)
+function startAnimals(){
+  state.huntTimer = setInterval(generateAnimal, 1000);
 }
 
-function startAsteroids(){
-  state.asteroidTimer = setInterval(generateAsteroid, 500 * (Math.pow(.75, state.level)));
+function shoot(){
+  var bulletTimer = setInterval(bulletAdvances, 50)
+  state.currentBullet.timer = bulletTimer;
+  state.currentBullet.column = state.manPos;
 }
 
-function fireLaser(){
-  var laserTimer = setInterval(laserAdvances, 50)
-  state.currentLaser.timer = laserTimer;
-  state.currentLaser.column = state.manPos;
-}
-
-function laserAdvances(){
-  if (state.currentLaser.row > 0){
-    state.grid[state.currentLaser.row - 1][state.currentLaser.column] = "l";
-    state.currentLaser.row -= 1;
+function bulletAdvances(){
+  if (state.currentBullet.row > 0){
+    state.grid[state.currentBullet.row - 1][state.currentBullet.column] = "b";
+    state.currentBullet.row -= 1;
   }
   else {
-    clearTimeout(state.currentLaser.timer);
+    clearTimeout(state.currentBullet.timer);
     for (var row = 0; row < 19; row++){
-      state.grid[row][state.currentLaser.column] = "";
+      state.grid[row][state.currentBullet.column] = "";
       state.render();
-      state.currentLaser.row = 19;
+      state.currentBullet.row = 19;
     }
-    document.getElementById("laserChargeText").innerHTML = "Laser charging...";
-    $("#laserChargeText").removeClass("charged");
   }
   state.render();
 }
@@ -212,10 +154,7 @@ $(document).keydown(function(e) {
           break;
 
         case 38: // up
-          if (laserCharge == 14){
-            fireLaser();
-            laserCharge = 0;
-          }
+          shoot();
           break;
 
         case 39: // right
@@ -227,25 +166,8 @@ $(document).keydown(function(e) {
     e.preventDefault();
 });
 
-function chargeLaser(){
-  if (laserCharge < 14){
-    laserCharge += 1;
-  }
-}
-
-function incrementPoints(){
-  points += 100 * (1 + state.level * .25);
-}
-
-function startPointCount(){
-  state.pointCountTimer = setInterval(incrementPoints, 1000);
-}
-
 $(document).ready(function(){
   initGrid();
-  initLaserChargeBar();
-  startPointCount();
-  startAsteroids();
-  startLaserCharging();
+  startAnimals();
   populateGrid();
 });

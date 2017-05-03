@@ -9,18 +9,12 @@ td {
   width: 20px;
 }
 
-.charged {
-  color: red;
-  font-size: 150%;
-  font-weight: bold;
+.bullet{
+  background-color: grey;
 }
 
-.laser {
-  background-color: orange;
-}
-
-.asteroid {
-  background-color: gray;
+.animal {
+  background-color: brown;
 }
 
 .man {
@@ -28,7 +22,7 @@ td {
 }
 
 .blank {
-  background-color: black;
+  background-color: green;
 }
 
 #header {
