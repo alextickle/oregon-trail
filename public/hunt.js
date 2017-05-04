@@ -14,8 +14,11 @@ function initGrid(){
 var state = {
   grid: [],
   manPos: 10,
+  animalTimer: "",
   huntTimer: "",
+  clearRows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
   reloaded: true,
+  kills: 0,
   render: function(){
     for (var i = 0; i < 20; i++) {
       for (var j = 0; j < 20; j++) {
@@ -55,20 +58,8 @@ var state = {
   }
 }
 
-function manAlive(){
-  var alive = false;
-  for (var i = 19; i >= 0; i--) {
-    for (var j = 0; j < 20; j++) {
-      if (state.grid[i][j] == "m"){
-        alive = true;
-      }
-    }
-  }
-  return alive;
-}
-
 function generateAnimal(){
-  var initialPosition = Math.floor(Math.random() * 19);
+  var initialPosition = state.clearRows[Math.floor(Math.random() * state.clearRows.length)];
   state.grid[initialPosition][0] = "a";
   state.render();
   state.animalsMove();
@@ -111,7 +102,17 @@ function moveLeft(){
 }
 
 function startAnimals(){
-  state.huntTimer = setInterval(generateAnimal, 1000);
+  state.animalTimer = setInterval(generateAnimal, 1000);
+}
+
+function startHuntTimer(){
+  state.huntTimer = setInterval(clearAnimalTimer, 30000);
+}
+
+function clearAnimalTimer(){
+  clearTimeout(state.animalTimer);
+  document.getElementById("results").innerHTML = "You killed " + state.kills + " animals and received " + Math.floor(Math.random() * state.kills * 10) + " pounds of food";
+  $(document).unbind("keydown");
 }
 
 function shoot(){
@@ -130,6 +131,9 @@ function bulletAdvances(){
     else {
       if (state.grid[state.currentBullet.row - 1][state.currentBullet.column] == "a"){
         state.grid[state.currentBullet.row - 1][state.currentBullet.column] = "d";
+        console.log("kill!");
+        state.clearRows.splice(state.clearRows.indexOf(state.currentBullet.row - 1), 1);
+        state.kills++
         state.grid[state.currentBullet.row][state.currentBullet.column] = "";
         clearTimeout(state.currentBullet.timer);
         state.reloaded = true;
@@ -188,5 +192,6 @@ $(document).keydown(function(e) {
 $(document).ready(function(){
   initGrid();
   startAnimals();
+  startHuntTimer();
   populateGrid();
 });
