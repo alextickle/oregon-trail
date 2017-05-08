@@ -6,6 +6,7 @@ let expressLayouts = require('express-ejs-layouts');
 let app = express();
 let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
+var gameToLoad = 7;
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -13,15 +14,53 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressLayouts);
 
-app.get('/', function(request, response) {
-    Game.findById(1).then(function(foundGame){
-      return foundGame.load();
-    }).then(function(data){
-      console.log("DATA:");
-      console.log(data);
-    }).catch(function(){
-      console.log("Error loading game");
+var load = function(gameId){
+  var mapped;
+  Game.findById(gameId).then(function(game){
+    // console.log("game object loaded from db");
+    gameToLoad = game;
+    console.log("gameToLoad");
+    console.log(gameToLoad);
+    return gameToLoad.getSupplies();
+  }).then(function(supplies){
+    // console.log("supplies loaded from db");
+    gameToLoad.supplies = [];
+    mapped = supplies.map(function(supply){
+      return supply.get()
     });
+    gameToLoad.supplies = mapped;
+    // console.log("gameToLoad.supplies");
+    // console.log(gameToLoad.supplies);
+    return gameToLoad.getPartyMembers();
+  }).then(function(members){
+    // console.log("partyMembers loaded from db");
+    gameToLoad.members = [];
+    mapped = members.map(function(member){
+      return member.get()
+    });
+    gameToLoad.members = members;
+    // console.log("gameToLoad.members");
+    // console.log(gameToLoad.members);
+  });
+  console.log("just before end of load");
+  console.log(gameToLoad);
+  return new Promise(function(resolve, reject){
+    if (gameToLoad != undefined){
+      // console.log("successfully ran load function");
+      resolve(gameToLoad);
+    }
+    else {
+      reject(Error("Error loading game (inner)"));
+    }
+  });
+};
+
+app.get('/', function(request, response) {
+    load(1).then(function(game){
+      console.log("Successfully loaded game.");
+    }).catch(function(){
+      console.log("Error loading game (outer).");
+    })
 });
 
 app.get('/numTravelers', function(request, response) {
