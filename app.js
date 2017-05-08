@@ -19,6 +19,8 @@ app.get('/', function(request, response) {
     }).then(function(data){
       console.log("DATA:");
       console.log(data);
+    }).catch(function(){
+      console.log("Error loading game");
     });
 });
 

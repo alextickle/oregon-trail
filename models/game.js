@@ -27,21 +27,23 @@ module.exports = function(sequelize, DataTypes) {
     instanceMethods: {
       load: function(){
         let mapped;
-        this.getPartyMembers().then(function(members){
-          this.members = [];
-          mapped = members.map(function(member){
-            return member.get()
-          });
-          this.members = mapped;
-          return this.getSupplies();
-        }).then(function(supplies){
+        this.getSupplies().then(function(supplies){
           this.supplies = [];
           mapped = supplies.map(function(supply){
             return supply.get()
           });
           this.supplies = mapped;
+          return this.getPartyMembers();
+        }).then(function(members){
+          console.log("fetching members");
+          console.log(members);
+          this.members = [];
+          mapped = members.map(function(member){
+            return member.get()
+          });
+          this.members = members;
           return new Promise(function(resolve, reject){
-              if (this.supplies.length != 0){
+              if (this.members.length != 0){
                 resolve();
               }
               else {
@@ -58,9 +60,8 @@ module.exports = function(sequelize, DataTypes) {
           return new Promise(function(resolve, reject){
             reject("error");
           });
-        })
-      }
-    }
+      });
+    }}
   });
   return Game;
 };
