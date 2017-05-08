@@ -4,20 +4,20 @@
     "password": "password",
     "database": "oregontrail",
     "host": "127.0.0.1",
-    "dialect": ""postgres""
+    "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
     "password": "password",
     "database": "oregontrail",
     "host": "127.0.0.1",
-    "dialect": ""postgres""
+    "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
     "password": "password",
     "database": "oregontrail",
     "host": "127.0.0.1",
-    "dialect": ""postgres""
+    "dialect": "postgres"
   }
 }

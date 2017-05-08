@@ -1,11 +1,11 @@
-const Game = require('./models/Game');
-const PartyMember = require('./models/PartyMember');
-const Supply = require ('./models/Supply');
-const express = require('express');
-const expressLayouts = require('express-ejs-layouts');
-const app = express();
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+let Game = require('./models').Game;
+// let PartyMember = require('./models').PartyMember;
+// let Supply = require ('./models').Supply;
+let express = require('express');
+let expressLayouts = require('express-ejs-layouts');
+let app = express();
+let bodyParser = require('body-parser');
+let cookieParser = require('cookie-parser');
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -13,15 +13,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressLayouts);
 
-function loadGame(request){
-  let gameId = request.cookies.gameId;
-  let game = new Game(gameId);
-  game.load();
-  return game;
-}
-
 app.get('/', function(request, response) {
-  response.render('home');
+    Game.findById(1).then(function(foundGame){
+      return foundGame.load();
+    }).then(function(data){
+      console.log("DATA:");
+      console.log(data);
+    });
 });
 
 app.get('/numTravelers', function(request, response) {

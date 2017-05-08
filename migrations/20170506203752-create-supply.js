@@ -14,6 +14,9 @@ module.exports = {
       quantity: {
         type: Sequelize.INTEGER
       },
+      gameId: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
