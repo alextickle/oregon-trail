@@ -1,14 +1,12 @@
 let Game = require('./models').Game;
 let Supply = require('./models').Supply;
 let PartyMember = require('./models').PartyMember;
-// let PartyMember = require('./models').PartyMember;
-// let Supply = require ('./models').Supply;
 let express = require('express');
 let expressLayouts = require('express-ejs-layouts');
 let app = express();
 let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
-var gameToLoad;
+var game;
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -16,7 +14,26 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressLayouts);
 
-var load = function(gameId){
+var load = function(id){
+  var game;
+  queryDatabase(id).then(function(foundGame){
+    game = foundGame.dataValues;
+    game.loadedSupplies = [];
+    game.loadedPartyMembers = [];
+    for (var i = 0; i < game.supplies.length; i++){
+      game.loadedSupplies.push(game.supplies[i].dataValues);
+    }
+    for (var i = 0; i < game.partyMembers.length; i++){
+      game.loadedPartyMembers.push(game.partyMembers[i].dataValues);
+    }
+  }).catch(function(){
+    console.log("Error loading game (outer).");
+  });
+  game.populateLocationsDiseases();
+  return game;
+}
+
+var queryDatabase = function(gameId){
   return Game.findById(gameId, {include: [{
         model: Supply,
         as: 'supplies'
@@ -26,24 +43,12 @@ var load = function(gameId){
     });
 };
 
+var save = function(game){
+  // TODO
+}
+
 app.get('/', function(request, response) {
-  var game;
-    load(1).then(function(foundGame){
-      console.log("Successfully loaded game.");
-      game = foundGame.dataValues;
-      game.loadedSupplies = [];
-      game.loadedPartyMembers = [];
-      for (var i = 0; i < game.supplies.length; i++){
-        game.loadedSupplies.push(game.supplies[i].dataValues);
-      }
-      for (var i = 0; i < game.partyMembers.length; i++){
-        game.loadedPartyMembers.push(game.partyMembers[i].dataValues);
-      }
-      console.log(game.loadedPartyMembers);
-      console.log(game.loadedSupplies);
-    }).catch(function(){
-      console.log("Error loading game (outer).");
-    })
+  var game = load(1);
 });
 
 app.get('/numTravelers', function(request, response) {
