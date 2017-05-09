@@ -1,4 +1,6 @@
 let Game = require('./models').Game;
+let Supply = require('./models').Supply;
+let PartyMember = require('./models').PartyMember;
 // let PartyMember = require('./models').PartyMember;
 // let Supply = require ('./models').Supply;
 let express = require('express');
@@ -6,7 +8,7 @@ let expressLayouts = require('express-ejs-layouts');
 let app = express();
 let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
-var gameToLoad = 7;
+var gameToLoad;
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -15,49 +17,30 @@ app.use(cookieParser());
 app.use(expressLayouts);
 
 var load = function(gameId){
-  var mapped;
-  Game.findById(gameId).then(function(game){
-    // console.log("game object loaded from db");
-    gameToLoad = game;
-    console.log("gameToLoad");
-    console.log(gameToLoad);
-    return gameToLoad.getSupplies();
-  }).then(function(supplies){
-    // console.log("supplies loaded from db");
-    gameToLoad.supplies = [];
-    mapped = supplies.map(function(supply){
-      return supply.get()
+  return Game.findById(gameId, {include: [{
+        model: Supply,
+        as: 'supplies'
+      },
+      { model: PartyMember,
+        as: 'partyMembers'}]
     });
-    gameToLoad.supplies = mapped;
-    // console.log("gameToLoad.supplies");
-    // console.log(gameToLoad.supplies);
-    return gameToLoad.getPartyMembers();
-  }).then(function(members){
-    // console.log("partyMembers loaded from db");
-    gameToLoad.members = [];
-    mapped = members.map(function(member){
-      return member.get()
-    });
-    gameToLoad.members = members;
-    // console.log("gameToLoad.members");
-    // console.log(gameToLoad.members);
-  });
-  console.log("just before end of load");
-  console.log(gameToLoad);
-  return new Promise(function(resolve, reject){
-    if (gameToLoad != undefined){
-      // console.log("successfully ran load function");
-      resolve(gameToLoad);
-    }
-    else {
-      reject(Error("Error loading game (inner)"));
-    }
-  });
 };
 
 app.get('/', function(request, response) {
-    load(1).then(function(game){
+  var game;
+    load(1).then(function(foundGame){
       console.log("Successfully loaded game.");
+      game = foundGame.dataValues;
+      game.loadedSupplies = [];
+      game.loadedPartyMembers = [];
+      for (var i = 0; i < game.supplies.length; i++){
+        game.loadedSupplies.push(game.supplies[i].dataValues);
+      }
+      for (var i = 0; i < game.partyMembers.length; i++){
+        game.loadedPartyMembers.push(game.partyMembers[i].dataValues);
+      }
+      console.log(game.loadedPartyMembers);
+      console.log(game.loadedSupplies);
     }).catch(function(){
       console.log("Error loading game (outer).");
     })
