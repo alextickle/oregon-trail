@@ -6,6 +6,7 @@ let expressLayouts = require('express-ejs-layouts');
 let app = express();
 let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
+var gameInstance;
 var game;
 
 app.use(express.static('public'));
@@ -17,6 +18,7 @@ app.use(expressLayouts);
 var load = function(id){
   var game;
   queryDatabase(id).then(function(foundGame){
+    gameInstance = foundGame;
     game = foundGame.dataValues;
     game.loadedSupplies = [];
     game.loadedPartyMembers = [];
@@ -43,12 +45,16 @@ var queryDatabase = function(gameId){
     });
 };
 
-var save = function(game){
-  // TODO
+var save = function(gameInst){
+  gameInst.save().then(function(){
+    console.log("game saved");
+  }).catch(function(){
+    console.log("game did NOT save properly");
+  });
 }
 
 app.get('/', function(request, response) {
-  var game = load(1);
+  response.render('home');
 });
 
 app.get('/numTravelers', function(request, response) {
@@ -62,15 +68,50 @@ app.post('/partyMembers', function(request, response){
 
 app.post('/outset', function(request, response){
   //create a new game with random supplies
-  let game = new Game();
+  var id;
+  Game.create({
+    recentlyBroken: 'h',
+    recentlyRecovered: 'h',
+    recentlyDeceased: 'h',
+    recentlyFellIll: 'h',
+    recentlyFound: 'h',
+    loseReason: 'h',
+    brokenDown: false,
+    daysSpent: 0,
+    currentLocation: 0
+  }).then(function(game){
+    id = game.dataValues.id;
+  });
+
   //add players to game
   let nameObj = request.body;
   for (var property in nameObj){
-    let traveler = new PartyMember(nameObj[property]);
-    game.partyMembers.push(traveler);
+    PartyMember.create({
+      name: nameObj.property,
+      status: well,
+      disease: "none",
+      gameId: id
+    }).then(function(game){
+    });
+  }
+
+  // create Supply objects
+  var supplyNames = ["wheels", "axles", "tongues", "sets of clothing", "oxen", "food", "bullets"];
+  var quantities = [3, 3, 2, 10, 4, 300, 100];
+  for (var i = 0; i < 7; i++){
+    Supply.create({
+      name: supplyNames[i],
+      quantity: quantities[i],
+      gameId: id
+    }).then(function(game){
+    });
+  }
   }
   //save the game
   game.save();
+  Game.load(id).then(function(gameInst){
+
+  });
   //persist this game's id by writing the game id into a cookie
   response.cookie('gameId', game.id);
   //display the outset page
