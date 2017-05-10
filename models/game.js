@@ -251,7 +251,7 @@ module.exports = function(sequelize, DataTypes) {
           }
         }
         return false;
-      };
+      },
 
       lookAround: function(){
         for (var i = 0; i < this.loadedSupplies.length; i++){
@@ -330,7 +330,7 @@ module.exports = function(sequelize, DataTypes) {
         }
         this.daysSpent += 10;
         return 'location';
-      };
+      }
     }
   });
   return Game;

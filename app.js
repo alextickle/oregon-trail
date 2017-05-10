@@ -17,7 +17,7 @@ app.use(expressLayouts);
 
 var load = function(id){
   var game;
-  queryDatabase(id).then(function(foundGame){
+  loadGameFromDb(id).then(function(foundGame){
     gameInstance = foundGame;
     game = foundGame.dataValues;
     game.loadedSupplies = [];
@@ -28,14 +28,16 @@ var load = function(id){
     for (var i = 0; i < game.partyMembers.length; i++){
       game.loadedPartyMembers.push(game.partyMembers[i].dataValues);
     }
+    game.populateLocationsDiseases();
+    resolve(new Promise(function(resolve, reject){
+        return new Promise
+    }));
   }).catch(function(){
     console.log("Error loading game (outer).");
   });
-  game.populateLocationsDiseases();
-  return game;
 }
 
-var queryDatabase = function(gameId){
+var loadGameFromDb = function(gameId){
   return Game.findById(gameId, {include: [{
         model: Supply,
         as: 'supplies'
@@ -67,56 +69,63 @@ app.post('/partyMembers', function(request, response){
 });
 
 app.post('/outset', function(request, response){
-  //create a new game with random supplies
-  var id;
-  Game.create({
-    recentlyBroken: 'h',
-    recentlyRecovered: 'h',
-    recentlyDeceased: 'h',
-    recentlyFellIll: 'h',
-    recentlyFound: 'h',
-    loseReason: 'h',
-    brokenDown: false,
-    daysSpent: 0,
-    currentLocation: 0
-  }).then(function(game){
-    id = game.dataValues.id;
+    load(2).then(function(gameInst){
+    let game = gameInst.dataValues;
+    response.render('outset', {game: game});
   });
-
-  //add players to game
-  let nameObj = request.body;
-  for (var property in nameObj){
-    PartyMember.create({
-      name: nameObj.property,
-      status: well,
-      disease: "none",
-      gameId: id
-    }).then(function(game){
-    });
-  }
-
-  // create Supply objects
-  var supplyNames = ["wheels", "axles", "tongues", "sets of clothing", "oxen", "food", "bullets"];
-  var quantities = [3, 3, 2, 10, 4, 300, 100];
-  for (var i = 0; i < 7; i++){
-    Supply.create({
-      name: supplyNames[i],
-      quantity: quantities[i],
-      gameId: id
-    }).then(function(game){
-    });
-  }
-  }
-  //save the game
-  game.save();
-  Game.load(id).then(function(gameInst){
-
-  });
-  //persist this game's id by writing the game id into a cookie
-  response.cookie('gameId', game.id);
-  //display the outset page
-  response.render('outset', {game: game});
 });
+  //create a new game with random supplies
+  // var ids;
+  // var game;
+  // Game.create({
+  //   recentlyBroken: 'h',
+  //   recentlyRecovered: 'h',
+  //   recentlyDeceased: 'h',
+  //   recentlyFellIll: 'h',
+  //   recentlyFound: 'h',
+  //   loseReason: 'h',
+  //   brokenDown: false,
+  //   daysSpent: 0,
+  //   currentLocation: 0
+  // }).then(function(createdGame){
+  //   id = createdGame.dataValues.id;
+  // });
+  //
+  // console.log("after game created")
+  // console.log(ids);
+  // //add players to game
+  // let nameObj = request.body;
+  // for (var property in nameObj){
+  //   PartyMember.create({
+  //     name: nameObj.property,
+  //     status: "well",
+  //     disease: "none",
+  //     gameId: id
+  //   }).then(function(game){
+  //   });
+  // }
+  //
+  // // create Supply objects
+  // var supplyNames = ["wheels", "axles", "tongues", "sets of clothing", "oxen", "food", "bullets"];
+  // var quantities = [3, 3, 2, 10, 4, 300, 100];
+  // for (var i = 0; i < 7; i++){
+  //   Supply.create({
+  //     name: supplyNames[i],
+  //     quantity: quantities[i],
+  //     gameId: id
+  //   }).then(function(game){
+  //   });
+  // }
+  //
+  //   load(id).then(function(game){
+  //   console.log(game);
+  //   //persist this game's id by writing the game id into a cookie
+  //   response.cookie('gameId', id);
+  //   //display the outset page
+  //   response.render('outset', {game: game});
+  // }).catch(function(){
+  //   console.log("error");
+  // })
 
 app.get('/location', function(request, response){
   //load the game and display current location
