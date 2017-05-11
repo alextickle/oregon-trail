@@ -17,9 +17,12 @@ app.use(expressLayouts);
 
 var load = function(id){
   var game;
-  loadGameFromDb(id).then(function(foundGame){
-    gameInstance = foundGame;
-    game = foundGame.dataValues;
+  return loadGameFromDb(id).then(function(gameInstance){
+    console.log("game instance");
+    console.log(gameInstance);
+    game = gameInstance.dataValues;
+    console.log("game");
+    console.log(game);
     game.loadedSupplies = [];
     game.loadedPartyMembers = [];
     for (var i = 0; i < game.supplies.length; i++){
@@ -28,12 +31,12 @@ var load = function(id){
     for (var i = 0; i < game.partyMembers.length; i++){
       game.loadedPartyMembers.push(game.partyMembers[i].dataValues);
     }
+    console.log("decorated game");
+    console.log(game);
     game.populateLocationsDiseases();
-    resolve(new Promise(function(resolve, reject){
-        return new Promise
-    }));
-  }).catch(function(){
-    console.log("Error loading game (outer).");
+    resolve(game);
+    }).catch(function(){
+    console.log("load failed");
   });
 }
 
