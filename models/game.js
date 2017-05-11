@@ -62,8 +62,8 @@ module.exports = function(sequelize, DataTypes) {
       checkBrokeDown: function(){
         for (var i = 0; i < 4; i++){
           if(this.getBroke(10)){
-            this.loadedSupplies[i].quantity -= 1;
-            if (this.loadedSupplies[i].quantity < 0){
+            this.supplies[i].quantity -= 1;
+            if (this.supplies[i].quantity < 0){
               this.brokenDown = true;
             }
             this.recentlyBroken = this.supplies[i].name;
@@ -78,7 +78,7 @@ module.exports = function(sequelize, DataTypes) {
           this.loseReason = "Your entire party is dead!";
           return true;
         }
-        if (this.loadedSupplies[2].quantity <= 0){
+        if (this.supplies[2].quantity <= 0){
           this.loseReason = "You ran out of food!";
           return true;
         }
@@ -91,7 +91,7 @@ module.exports = function(sequelize, DataTypes) {
 
       headCount: function(){
         let headCount = 0;
-        this.loadedPartyMembers.forEach(function(member){
+        this.partyMembers.forEach(function(member){
           if (member.status !== "dead"){
             headCount++;
           }
@@ -103,9 +103,9 @@ module.exports = function(sequelize, DataTypes) {
         let i = partyMemberIndex;
         let randomNum = Math.floor(Math.random() * chance) + 1;
         if (randomNum === 1){
-          this.loadedPartyMembers[i].disease = "none";
-          this.loadedPartyMembers[i].status = "well";
-          this.recentlyRecovered = this.loadedPartyMembers[i].name;
+          this.partyMembers[i].disease = "none";
+          this.partyMembers[i].status = "well";
+          this.recentlyRecovered = this.partyMembers[i].name;
           return true;
         }
       },
@@ -114,8 +114,8 @@ module.exports = function(sequelize, DataTypes) {
         let i = partyMemberIndex;
         let randomNum = Math.floor(Math.random() * chance) + 1;
         if (randomNum === 1){
-          this.loadedPartyMembers[i].status = "dead";
-          this.recentlyDeceased = this.loadedPartyMembers[i].name;
+          this.partyMembers[i].status = "dead";
+          this.recentlyDeceased = this.partyMembers[i].name;
           return true;
         }
         return false;
@@ -149,13 +149,13 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       checkSick: function(){
-        for (var i = 0; i < this.loadedPartyMembers.length; i++){
-          if (this.loadedPartyMembers[i].status == "well"){
+        for (var i = 0; i < this.partyMembers.length; i++){
+          if (this.partyMembers[i].status == "well"){
             for(var j=0; j < this.diseases.length; j++){
                 if(this.getSick(this.diseases[j].chance)){
-                  this.loadedPartyMembers[i].status = "sick";
-                  this.loadedPartyMembers[i].disease = this.diseases[j].name;
-                  this.recentlyFellIll = this.loadedPartyMembers[i];
+                  this.partyMembers[i].status = "sick";
+                  this.partyMembers[i].disease = this.diseases[j].name;
+                  this.recentlyFellIll = this.partyMembers[i];
                   return true;
                 }
               }
@@ -165,9 +165,9 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       checkDead: function(){
-        for (var i = 0; i < this.loadedPartyMembers.length; i++){
-          if (this.loadedPartyMembers[i].status == "sick"){
-            switch(this.loadedPartyMembers[i].disease){
+        for (var i = 0; i < this.partyMembers.length; i++){
+          if (this.partyMembers[i].status == "sick"){
+            switch(this.partyMembers[i].disease){
               case "dysentery":
                 if (this.die(2, i)){
                   return true;
@@ -212,9 +212,9 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       checkRecovered: function(){
-        for (var i = 0; i < this.loadedPartyMembers.length; i++){
-          if (this.loadedPartyMembers[i].status == "sick"){
-            switch(this.loadedPartyMembers[i].disease){
+        for (var i = 0; i < this.partyMembers.length; i++){
+          if (this.partyMembers[i].status == "sick"){
+            switch(this.partyMembers[i].disease){
               case "dysentery":
                 if (this.diseaseRecovery(4, i)){
                   return true;
@@ -254,31 +254,31 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       lookAround: function(){
-        for (var i = 0; i < this.loadedSupplies.length; i++){
+        for (var i = 0; i < this.supplies.length; i++){
           if(this.found(10)){
             switch(i){
               case 0:
-                this.loadedSupplies[0].quantity += 1;
+                this.supplies[0].quantity += 1;
                 this.recentlyFound = "wagon wheel";
                 break;
               case 1:
-                this.loadedSupplies[1].quantity += 1;
+                this.supplies[1].quantity += 1;
                 this.recentlyFound = "wagon axle";
                 break;
               case 2:
-                this.loadedSupplies[2].quantity += 1;
+                this.supplies[2].quantity += 1;
                 this.recentlyFound = "wagon tongues";
                 break;
               case 3:
-                this.loadedSupplies[3].quantity += 3;
+                this.supplies[3].quantity += 3;
                 this.recentlyFound = "sets of clothes";
                 break;
               case 4:
-                this.loadedSupplies[4].quantity += 1;
+                this.supplies[4].quantity += 1;
                 this.recentlyFound = "one ox";
                 break;
               case 5:
-                this.loadedSupplies[5].quantity += 50;
+                this.supplies[5].quantity += 50;
                 this.recentlyFound = "50 pounds of food";
                 break;
               default:
@@ -286,7 +286,7 @@ module.exports = function(sequelize, DataTypes) {
                 break;
             }
             this.daysSpent += 2;
-            this.loadedSupplies[5].quantity -= (2 * this.headCount());
+            this.supplies[5].quantity -= (2 * this.headCount());
             return true;
           }
         }

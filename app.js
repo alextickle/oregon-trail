@@ -18,20 +18,25 @@ app.use(expressLayouts);
 var load = function(id){
   var game;
   return loadGameFromDb(id).then(function(gameInstance){
-    console.log("game instance");
-    console.log(gameInstance);
     game = gameInstance.dataValues;
-    console.log("game");
-    console.log(game);
+    // console.log("game");
+    // console.log(game);
     game.loadedSupplies = [];
     game.loadedPartyMembers = [];
     for (var i = 0; i < game.supplies.length; i++){
+      console.log("Supplies[i]");
+      console.log(game.supplies[i]);
+      console.log("Supplies[i].dataValues");
+      console.log(game.supplies[i].dataValues);
       game.loadedSupplies.push(game.supplies[i].dataValues);
     }
     for (var i = 0; i < game.partyMembers.length; i++){
       game.loadedPartyMembers.push(game.partyMembers[i].dataValues);
     }
-    console.log("decorated game");
+    game.supplies = game.loadedSupplies;
+    game.partyMembers = game.loadedPartyMembers;
+    game.loadedSupplies = [];
+    game.loadedPartyMembers = [];
     console.log(game);
     game.populateLocationsDiseases();
     resolve(game);
