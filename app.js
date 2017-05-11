@@ -22,7 +22,11 @@ var load = function(id){
       game = gameInstance.dataValues;
       game.supplies = gameInstance.getSupplyObjs();
       game.partyMembers = gameInstance.getPartyMemberObjs();
+      console.log("pre populate");
+      console.log(game);
       populateLocationsDiseases(game);
+      console.log("post populate");
+      console.log(game);
       resolve(game);
     });
   }).catch(function(){
