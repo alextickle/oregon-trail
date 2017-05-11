@@ -19,15 +19,9 @@ var load = function(id){
   var game;
   return loadGameFromDb(id).then(function(gameInstance){
     game = gameInstance.dataValues;
-    // console.log("game");
-    // console.log(game);
     game.loadedSupplies = [];
     game.loadedPartyMembers = [];
     for (var i = 0; i < game.supplies.length; i++){
-      console.log("Supplies[i]");
-      console.log(game.supplies[i]);
-      console.log("Supplies[i].dataValues");
-      console.log(game.supplies[i].dataValues);
       game.loadedSupplies.push(game.supplies[i].dataValues);
     }
     for (var i = 0; i < game.partyMembers.length; i++){
@@ -37,13 +31,47 @@ var load = function(id){
     game.partyMembers = game.loadedPartyMembers;
     game.loadedSupplies = [];
     game.loadedPartyMembers = [];
+    populateLocationsDiseases(game);
     console.log(game);
-    game.populateLocationsDiseases();
     resolve(game);
     }).catch(function(){
     console.log("load failed");
   });
 }
+
+var populateLocationsDiseases = function(game){
+  game.locations = [
+    { name: "Chimney Rock",
+      source: "/images/chimney-rock.jpg"},
+    { name: "Fort Laramie",
+      source: "/images/fort-laramie.jpg"},
+    { name: "Independence Rock",
+      source: "/images/independence-rock.jpg"},
+    { name: "Kansas River Crossing",
+      source: "/images/kansas-river-crossing.jpg"},
+    { name: "Fort Kearney",
+      source: "/images/fort-kearney.jpg"},
+    { name: "South Pass",
+      source: "/images/south-pass.jpg"},
+    { name: "Green River Crossing",
+      source: "/images/green-river-crossing.jpg"},
+    { name: "Fort Boise",
+      source: "/images/fort-boise.jpg"},
+    { name: "Blue Mountains",
+      source: "/images/blue-mountains.jpg"},
+    { name: "The Dalles",
+      source: "/images/the-dalles.jpg"}
+    ];
+  game.diseases = [
+    {name: "cholera", chance: 30},
+    {name: "dysentery", chance: 20},
+    {name: "broken leg", chance: 80},
+    {name: "broken arm", chance: 60},
+    {name: "bitten by snake", chance: 100},
+    {name: "influenza", chance: 20},
+    {name: "spontaneous combustion", chance: 5000}
+  ];
+};
 
 var loadGameFromDb = function(gameId){
   return Game.findById(gameId, {include: [{
@@ -78,8 +106,10 @@ app.post('/partyMembers', function(request, response){
 
 app.post('/outset', function(request, response){
     load(2).then(function(gameInst){
-    let game = gameInst.dataValues;
-    response.render('outset', {game: game});
+      console.log("in body of post");
+      console.log(gameInst);
+      let game = gameInst.dataValues;
+      response.render('outset', {game: game});
   });
 });
   //create a new game with random supplies

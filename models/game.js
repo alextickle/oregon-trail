@@ -25,40 +25,6 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     instanceMethods: {
-      populateLocationsDiseases: function(){
-        this.locations = [
-          { name: "Chimney Rock",
-            source: "/images/chimney-rock.jpg"},
-          { name: "Fort Laramie",
-            source: "/images/fort-laramie.jpg"},
-          { name: "Independence Rock",
-            source: "/images/independence-rock.jpg"},
-          { name: "Kansas River Crossing",
-            source: "/images/kansas-river-crossing.jpg"},
-          { name: "Fort Kearney",
-            source: "/images/fort-kearney.jpg"},
-          { name: "South Pass",
-            source: "/images/south-pass.jpg"},
-          { name: "Green River Crossing",
-            source: "/images/green-river-crossing.jpg"},
-          { name: "Fort Boise",
-            source: "/images/fort-boise.jpg"},
-          { name: "Blue Mountains",
-            source: "/images/blue-mountains.jpg"},
-          { name: "The Dalles",
-            source: "/images/the-dalles.jpg"}
-          ];
-        this.diseases = [
-          {name: "cholera", chance: 30},
-          {name: "dysentery", chance: 20},
-          {name: "broken leg", chance: 80},
-          {name: "broken arm", chance: 60},
-          {name: "bitten by snake", chance: 100},
-          {name: "influenza", chance: 20},
-          {name: "spontaneous combustion", chance: 5000}
-        ];
-      },
-
       checkBrokeDown: function(){
         for (var i = 0; i < 4; i++){
           if(this.getBroke(10)){
