@@ -25,6 +25,34 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     instanceMethods: {
+      getSupplyObjs: function(){
+        this._supplies = this._supplies || []
+        if(this._supplies.length > 0){
+          return this._supplies;
+        }
+        else {
+          for (var i = 0; i < this.supplies.length; i++){
+            this._supplies[i] = this.supplies[i].get();
+          }
+
+        }
+        return this._supplies;
+      },
+
+      getPartyMemberObjs: function(){
+        this._partyMembers = this._partyMembers || []
+        if(this._partyMembers.length > 0){
+          return this._partyMembers;
+        }
+        else {
+          for (var i = 0; i < this.partyMembers.length; i++){
+            this._partyMembers[i] = this.partyMembers[i].get();
+          }
+
+        }
+        return this._partyMembers;
+      },
+
       checkBrokeDown: function(){
         for (var i = 0; i < 4; i++){
           if(this.getBroke(10)){

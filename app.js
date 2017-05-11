@@ -18,23 +18,14 @@ app.use(expressLayouts);
 var load = function(id){
   var game;
   return loadGameFromDb(id).then(function(gameInstance){
-    game = gameInstance.dataValues;
-    game.loadedSupplies = [];
-    game.loadedPartyMembers = [];
-    for (var i = 0; i < game.supplies.length; i++){
-      game.loadedSupplies.push(game.supplies[i].dataValues);
-    }
-    for (var i = 0; i < game.partyMembers.length; i++){
-      game.loadedPartyMembers.push(game.partyMembers[i].dataValues);
-    }
-    game.supplies = game.loadedSupplies;
-    game.partyMembers = game.loadedPartyMembers;
-    game.loadedSupplies = [];
-    game.loadedPartyMembers = [];
-    populateLocationsDiseases(game);
-    console.log(game);
-    resolve(game);
-    }).catch(function(){
+    return new Promise(function(resolve, reject){
+      game = gameInstance.dataValues;
+      game.supplies = gameInstance.getSupplyObjs();
+      game.partyMembers = gameInstance.getPartyMemberObjs();
+      populateLocationsDiseases(game);
+      resolve(game);
+    });
+  }).catch(function(){
     console.log("load failed");
   });
 }
@@ -105,10 +96,8 @@ app.post('/partyMembers', function(request, response){
 });
 
 app.post('/outset', function(request, response){
-    load(2).then(function(gameInst){
+    load(2).then(function(game){
       console.log("in body of post");
-      console.log(gameInst);
-      let game = gameInst.dataValues;
       response.render('outset', {game: game});
   });
 });

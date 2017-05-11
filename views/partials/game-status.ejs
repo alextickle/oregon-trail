@@ -5,11 +5,11 @@
       <th>Status</th>
       <th>Illness</th>
     </thead>
-  <% for(i = 0; i < game.loadedPartyMembers.length; i++){%>
+  <% for(i = 0; i < game.partyMembers.length; i++){%>
       <tr>
-        <td> <%= game.loadedPartyMembers[i].name%> </td>
-        <td> <%= game.loadedPartyMembers[i].status%> </td>
-        <td> <%= game.loadedPartyMembers[i].disease%> </td>
+        <td> <%= game.partyMembers[i].name%> </td>
+        <td> <%= game.partyMembers[i].status%> </td>
+        <td> <%= game.partyMembers[i].disease%> </td>
       </tr>
     <%}%>
   </table>
@@ -20,31 +20,31 @@
     </thead>
     <tr>
       <td>oxen</td>
-      <td><%= game.loadedSupplies[4].quantity %></td>
+      <td><%= game.supplies[4].quantity %></td>
     </tr>
     <tr>
       <td>Sets of Clothing</td>
-      <td><%= game.loadedSupplies[3].quantity %></td>
+      <td><%= game.supplies[3].quantity %></td>
     </tr>
     <tr>
       <td>Bullets</td>
-      <td><%= game.loadedSupplies[6].quantity %></td>
+      <td><%= game.supplies[6].quantity %></td>
     </tr>
     <tr>
       <td>Wagon Wheels</td>
-      <td><%= game.loadedSupplies[0].quantity %></td>
+      <td><%= game.supplies[0].quantity %></td>
     </tr>
     <tr>
       <td>Wagon Axels</td>
-      <td><%= game.loadedSupplies[1].quantity %></td>
+      <td><%= game.supplies[1].quantity %></td>
     </tr>
     <tr>
       <td>Wagon Tongues</td>
-      <td><%= game.loadedSupplies[2].quantity %></td>
+      <td><%= game.supplies[2].quantity %></td>
     </tr>
     <tr>
       <td>Pounds of Food</td>
-      <td><%= game.loadedSupplies[5].quantity %></td>
+      <td><%= game.supplies[5].quantity %></td>
     </tr>
   </table><br>
   <h4 id="days">Days on the trail: <%=game.daysSpent%> </h4>
