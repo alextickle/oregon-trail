@@ -109,6 +109,12 @@ var populateLocationsDiseases = function(game){
   ];
 };
 
+var saveSupplies = function(gameId){
+  return new Promise(function(resolve, reject){
+    // Promise.all?
+  });
+}
+
 var loadGameFromDb = function(gameId){
   return Game.findById(gameId, {include: [{
         model: Supply,
@@ -119,20 +125,42 @@ var loadGameFromDb = function(gameId){
     });
 };
 
-var save = function(gameId, game){
-  return loadGameFrom(gameId).then(function(instance){
-    instance.dataValues = game;
-    for (var i = 0; i < game.supplies.length; i++){
-      instance.supplies[i].dataValues = game.supplies[i];
-    }
-    for (var i = 0; i < game.partyMembers.length; i++){
-      instance.partyMembers[i].dataValues = game.partyMembers[i];
-    }
-    resolve(instance.save());
-  }).catch(function(){
-    console.log("game did NOT save properly");
-  });
-}
+// var save = function(gameId, game){
+//   var game = game;
+//   var gameId = gameId;
+//   return loadGameFrom(gameId).then(function(instance){
+//     return oregontrail.Games.update({
+//       recentlyBroken: game.recentlyBroken,
+//       recentlyRecovered: game.recentlyRecovered,
+//       recentlyDeceased: game.recentlyDeceased,
+//       recentlyFellIll: game.recentlyFellIll,
+//       recentlyFound: game.recentlyFound,
+//       loseReason: game.loseReason,
+//       brokenDown: game.brokenDown,
+//       daysSpent: game.daysSpent,
+//       currentLocation: game.currentLocation
+//     }, {where {
+//       id: gameId
+//     }}).then(function(){
+//       return oregontrail.Supplies.update({
+//         recentlyBroken: game.recentlyBroken,
+//         recentlyRecovered: game.recentlyRecovered,
+//         recentlyDeceased: game.recentlyDeceased,
+//         recentlyFellIll: game.recentlyFellIll,
+//         recentlyFound: game.recentlyFound,
+//         loseReason: game.loseReason,
+//         brokenDown: game.brokenDown,
+//         daysSpent: game.daysSpent,
+//         currentLocation: game.currentLocation
+//       }, {where {
+//         gameId: gameId
+//       }});
+//     })
+//     resolve(instance.save());
+//   }).catch(function(){
+//     console.log("game did NOT save properly");
+//   });
+// }
 
 app.get('/', function(request, response) {
   response.render('home');
@@ -173,10 +201,12 @@ app.get('/turn',function(request,response){
 })
 
 app.get('/look-around', function(request, response) {
-  let game = loadGame(request);
-  game.lookAround();
-  game.save();
-  response.render('look-around', {game: game});
+  load(request.cookies.gameId).then(function(game){
+    game.lookAround();
+    return save(request.cookies.gameId, game);
+  }).then(function(game){
+    response.render('look-around', {game: game});
+  })
 });
 
 app.get('/hunt', function(request, response) {
