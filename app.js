@@ -19,7 +19,6 @@ var newGame = function(nameObj){
   var id;
   var game;
   var nameObj = nameObj;
-  console.log(nameObj);
   return Game.create({
     recentlyBroken: 'h',
     recentlyRecovered: 'h',
@@ -120,9 +119,16 @@ var loadGameFromDb = function(gameId){
     });
 };
 
-var save = function(gameInst){
-  gameInst.save().then(function(){
-    console.log("game saved");
+var save = function(gameId, game){
+  return loadGameFrom(gameId).then(function(instance){
+    instance.dataValues = game;
+    for (var i = 0; i < game.supplies.length; i++){
+      instance.supplies[i].dataValues = game.supplies[i];
+    }
+    for (var i = 0; i < game.partyMembers.length; i++){
+      instance.partyMembers[i].dataValues = game.partyMembers[i];
+    }
+    resolve(instance.save());
   }).catch(function(){
     console.log("game did NOT save properly");
   });
@@ -144,29 +150,27 @@ app.post('/partyMembers', function(request, response){
 app.post('/outset', function(request, response){
   newGame(request.body).then(function(game){
   response.cookie('gameId', game.id);
-  console.log("game.id");
-  console.log(game.id);
-  console.log("response.cookie.gameId");
-  console.log(response.cookie);
   response.render('outset', {game: game});
   });
 });
 
 app.get('/location', function(request, response){
   //load the game and display current location
-  var gameId = response.cookie.gameId;
-  console.log(gameId);
-  load(gameId).then(function(game){
+  load(request.cookies.gameId).then(function(game){
   response.render('location', {game: game});
   });
 });
 
 app.get('/turn',function(request,response){
-  let game = loadGame(request);
-  let step = game.takeTurn();
-  game.save();
-  response.render(step, {game: game});
-});
+  load(request.cookies.gameId).then(function(game){
+    let step = game.takeTurn();
+    return save(request.cookies.gameId, game);
+  }).then(function(game){
+      response.render(step, {game: game});
+  }).catch(function(){
+    console.log("save failed");
+  })
+})
 
 app.get('/look-around', function(request, response) {
   let game = loadGame(request);
