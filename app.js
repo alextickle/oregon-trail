@@ -142,16 +142,23 @@ app.post('/partyMembers', function(request, response){
 });
 
 app.post('/outset', function(request, response){
-    newGame(request.body).then(function(game){
-    response.cookie('gameId', game.id);
-    response.render('outset', {game: game});
+  newGame(request.body).then(function(game){
+  response.cookie('gameId', game.id);
+  console.log("game.id");
+  console.log(game.id);
+  console.log("response.cookie.gameId");
+  console.log(response.cookie);
+  response.render('outset', {game: game});
   });
 });
 
 app.get('/location', function(request, response){
   //load the game and display current location
-  let game = loadGame(request);
+  var gameId = response.cookie.gameId;
+  console.log(gameId);
+  load(gameId).then(function(game){
   response.render('location', {game: game});
+  });
 });
 
 app.get('/turn',function(request,response){
