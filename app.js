@@ -101,62 +101,61 @@ app.post('/partyMembers', function(request, response){
 
 app.post('/outset', function(request, response){
     load(2).then(function(game){
-      console.log("in body of post");
-      response.render('outset', {game: game});
+    response.render('outset', {game: game});
   });
 });
-  //create a new game with random supplies
-  // var ids;
-  // var game;
-  // Game.create({
-  //   recentlyBroken: 'h',
-  //   recentlyRecovered: 'h',
-  //   recentlyDeceased: 'h',
-  //   recentlyFellIll: 'h',
-  //   recentlyFound: 'h',
-  //   loseReason: 'h',
-  //   brokenDown: false,
-  //   daysSpent: 0,
-  //   currentLocation: 0
-  // }).then(function(createdGame){
-  //   id = createdGame.dataValues.id;
-  // });
-  //
-  // console.log("after game created")
-  // console.log(ids);
-  // //add players to game
-  // let nameObj = request.body;
-  // for (var property in nameObj){
-  //   PartyMember.create({
-  //     name: nameObj.property,
-  //     status: "well",
-  //     disease: "none",
-  //     gameId: id
-  //   }).then(function(game){
-  //   });
-  // }
-  //
-  // // create Supply objects
-  // var supplyNames = ["wheels", "axles", "tongues", "sets of clothing", "oxen", "food", "bullets"];
-  // var quantities = [3, 3, 2, 10, 4, 300, 100];
-  // for (var i = 0; i < 7; i++){
-  //   Supply.create({
-  //     name: supplyNames[i],
-  //     quantity: quantities[i],
-  //     gameId: id
-  //   }).then(function(game){
-  //   });
-  // }
-  //
-  //   load(id).then(function(game){
-  //   console.log(game);
-  //   //persist this game's id by writing the game id into a cookie
-  //   response.cookie('gameId', id);
-  //   //display the outset page
-  //   response.render('outset', {game: game});
-  // }).catch(function(){
-  //   console.log("error");
-  // })
+
+var newGame = function(){
+  var id;
+  var game;
+  let nameObj = request.body;
+  return Game.create({
+    recentlyBroken: 'h',
+    recentlyRecovered: 'h',
+    recentlyDeceased: 'h',
+    recentlyFellIll: 'h',
+    recentlyFound: 'h',
+    loseReason: 'h',
+    brokenDown: false,
+    daysSpent: 0,
+    currentLocation: 0
+  }).then(function(createdGame){
+    id = createdGame.dataValues.id;
+    var membersToWrite = [];
+    for (var prop in nameObj){
+      membersToWrite.push({
+        name: nameObj.prop,
+        status: "well",
+        disease: "none",
+        gameId: id
+      });
+    }
+    return PartyMember.bulkCreate(membersToWrite);
+  }).then(function(id){
+    var supplyNames = ["wheels", "axles", "tongues", "sets of clothing", "oxen", "food", "bullets"];
+    var quantities = [3, 3, 2, 10, 4, 300, 100];
+    var suppliesToWrite = [];
+    for (var i = 0; i < 7; i++){
+      suppliesToWrite.push({
+        name: supplyNames[i],
+        quantity: quantities[i],
+        gameId: id
+      });
+    }
+    return Supply.bulkCreate(suppliesToWrite);
+  }).then(function)
+
+    load(id).then(function(game){
+    console.log(game);
+    //persist this game's id by writing the game id into a cookie
+    response.cookie('gameId', id);
+    //display the outset page
+    response.render('outset', {game: game});
+  }).catch(function(){
+    console.log("error");
+  })
+}
+
 
 app.get('/location', function(request, response){
   //load the game and display current location
