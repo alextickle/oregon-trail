@@ -229,7 +229,8 @@ var save = function(gameId, game){
     }).then(function(){
       console.log("SUCCESS!");
       return new Promise(function(resolve, reject){
-        resolve();
+        console.log("game (about to render): ", game);
+        resolve(game);
       });
     }).catch(function(){
     console.log("game did NOT save properly");
@@ -281,9 +282,9 @@ app.get('/turn',function(request,response){
   load(request.cookies.gameId).then(function(game){
     // let step = game.takeTurn();
     return save(request.cookies.gameId, game);
-  }).then(function(){
+  }).then(function(game){
       console.log("about to render!");
-      response.render(step, {game: game});
+      response.render('location', {game: game});
   }).catch(function(){
     console.log("save failed (called from route)");
   })

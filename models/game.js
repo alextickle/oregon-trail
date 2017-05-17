@@ -289,6 +289,7 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       takeTurn: function(){
+        console.log("inside take turn");
         if (this.currentLocation === this.locations.length-1 ){
           return "this-won";
         }
