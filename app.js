@@ -31,7 +31,8 @@ var newGame = function(nameObj){
     brokenDown: false,
     daysSpent: 0,
     currentLocation: 0
-  }).then(function(createdGame){
+  })
+  .then(function(createdGame){
     id = createdGame.dataValues.id;
     var membersToWrite = [];
     for (var prop in nameObj){
@@ -43,7 +44,8 @@ var newGame = function(nameObj){
       });
     }
     return PartyMember.bulkCreate(membersToWrite);
-  }).then(function(){
+  })
+  .then(function(){
     var supplyNames = ["wheels", "axles", "tongues", "sets of clothing", "oxen", "food", "bullets"];
     var quantities = [3, 3, 2, 10, 4, 300, 100];
     var suppliesToWrite = [];
@@ -55,20 +57,24 @@ var newGame = function(nameObj){
       });
     }
     return Supply.bulkCreate(suppliesToWrite);
-  }).then(function(){
+  })
+  .then(function(){
+    console.log("game created, ID: ", id)
     return load(id);
-  }).catch(function(){
+  })
+  .catch(function(){
     console.log("error creating new game");
   });
 }
 
 var load = function(id){
-  var game;
-  return loadGameFromDb(id).then(function(gameInstance){
+  return loadGameFromDb(id)
+  .then(function(gameInstance){
     return new Promise(function(resolve, reject){
       populateLocationsDiseases(gameInstance.dataValues);
       gameInstance.currentSupplies = gameInstance.dataValues.getSupplyObjs();
       gameInstance.currentPartyMembers = gameInstance.dataValues.getPartyMemberObjs();
+      console.log("loaded game instance: ", gameInstance);
       resolve(gameInstance);
     });
   }).catch(function(){
@@ -136,10 +142,11 @@ var updateGameTwenty = function(){
           id: 20
         }
   });
-}
+};
 
 var save = function(gameId, gameInstance){
-  return loadGameFromDb(gameId).then(function(instance){
+  return loadGameFromDb(gameId)
+  .then(function(instance){
     return Game.update({
       recentlyBroken: game.recentlyBroken,
       recentlyRecovered: game.recentlyRecovered,
@@ -155,7 +162,8 @@ var save = function(gameId, gameInstance){
           id: gameId
         }
       });
-  }).then(function(){
+  })
+  .then(function(){
       console.log("saving supplies");
       var supplies = game.currentSupplies;
       var promise1 = Supply.update({
@@ -203,7 +211,8 @@ var save = function(gameId, gameInstance){
       var promises = [promise1, promise2, promise3,
                       promise4, promise5, promise6, promise7];
       return Promise.all(promises);
-    }).then(function(){
+    })
+    .then(function(){
       var partyMembers = gameInstance.currentPartyMembers;
       var promises = [];
       for (var i = 0; i < partyMembers.length; i++){
@@ -216,22 +225,26 @@ var save = function(gameId, gameInstance){
         }}));
       }
       return Promise.all(promises);
-    }).then(function(){
+    })
+    .then(function(){
       return new Promise(function(resolve, reject){
         resolve(gameInstance);
       });
-    }).catch(function(){
-    console.log("game did NOT save properly");
+    })
+    .catch(function(){
+      console.log("game did NOT save properly");
     });
-}
+};
 
 app.get('/continue', function(request, response) {
-  load(request.cookies.gameId).then(function(gameInstance){
+  load(request.cookies.gameId)
+  .then(function(gameInstance){
     response.render('outset', {
-                                game: gameInstance.dataValues,
-                                supplies: gameInstance.currentSupplies,
-                                partyMembers: gameInstance.currentPartyMembers,
-                              });
+                                  game: gameInstance.dataValues,
+                                  supplies: gameInstance.currentSupplies,
+                                  partyMembers: gameInstance.currentPartyMembers,
+                                });
+    });
 });
 
 app.get('/', function(request, response) {
@@ -254,23 +267,27 @@ app.post('/partyMembers', function(request, response){
 });
 
 app.post('/outset', function(request, response){
-  newGame(request.body).then(function(gameInstance){
-  response.cookie('gameId', gameInstance.dataValues.id);
-  response.render('outset', {
-                              game: gameInstance.dataValues,
-                              supplies: gameInstance.currentSupplies,
-                              partyMembers: gameInstance.currentPartyMembers,
-                            });
+  newGame(request.body)
+  .then(function(gameInstance){
+    response.cookie('gameId', gameInstance.dataValues.id);
+    response.render('outset', {
+                                game: gameInstance.dataValues,
+                                supplies: gameInstance.currentSupplies,
+                                partyMembers: gameInstance.currentPartyMembers,
+                              });
+  });
 });
 
 app.get('/location', function(request, response){
   //load the game and display current location
-  load(request.cookies.gameId).then(function(gameInstance){
+  load(request.cookies.gameId)
+  .then(function(gameInstance){
     response.render('location', {
                                   game: gameInstance.dataValues,
                                   supplies: gameInstance.currentSupplies,
                                   partyMembers: gameInstance.currentPartyMembers,
                                 });
+  });
 });
 
 app.get('/turn',function(request,response){
@@ -279,28 +296,33 @@ app.get('/turn',function(request,response){
   load(request.cookies.gameId).then(function(gameInstance){
     // step = gameInstance.takeTurn();
     return save(request.cookies.gameId, gameInstance);
-  }).then(function(gameInstance){
+  })
+  .then(function(gameInstance){
       console.log("about to render!");
       response.render('location', {
                                     game: gameInstance.dataValues,
                                     supplies: gameInstance.currentSupplies,
                                     partyMembers: gameInstance.currentPartyMembers,
                                   });
-  }).catch(function(){
+  })
+  .catch(function(){
     console.log("save failed (called from route)");
   })
-})
+});
 
 app.get('/look-around', function(request, response) {
-  load(request.cookies.gameId).then(function(gameInstance){
+  load(request.cookies.gameId)
+  .then(function(gameInstance){
     gameInstance.lookAround();
     return save(request.cookies.gameId, gameInstance);
-  }).then(function(gameInstance){
+  })
+  .then(function(gameInstance){
     response.render('look-around', {
                                   game: gameInstance.dataValues,
                                   supplies: gameInstance.currentSupplies,
                                   partyMembers: gameInstance.currentPartyMembers,
                                 });
+  })
 });
 
 app.get('/hunt', function(request, response) {
