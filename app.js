@@ -9,6 +9,39 @@ let cookieParser = require('cookie-parser');
 var gameInstance;
 var game;
 
+let locations = [
+  { name: "Chimney Rock",
+    source: "/images/chimney-rock.jpg"},
+  { name: "Fort Laramie",
+    source: "/images/fort-laramie.jpg"},
+  { name: "Independence Rock",
+    source: "/images/independence-rock.jpg"},
+  { name: "Kansas River Crossing",
+    source: "/images/kansas-river-crossing.jpg"},
+  { name: "Fort Kearney",
+    source: "/images/fort-kearney.jpg"},
+  { name: "South Pass",
+    source: "/images/south-pass.jpg"},
+  { name: "Green River Crossing",
+    source: "/images/green-river-crossing.jpg"},
+  { name: "Fort Boise",
+    source: "/images/fort-boise.jpg"},
+  { name: "Blue Mountains",
+    source: "/images/blue-mountains.jpg"},
+  { name: "The Dalles",
+    source: "/images/the-dalles.jpg"}
+  ];
+
+  let diseases = [
+    {name: "cholera", chance: 30},
+    {name: "dysentery", chance: 20},
+    {name: "broken leg", chance: 80},
+    {name: "broken arm", chance: 60},
+    {name: "bitten by snake", chance: 100},
+    {name: "influenza", chance: 20},
+    {name: "spontaneous combustion", chance: 5000}
+  ];
+
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -73,40 +106,6 @@ var load = function(id){
     console.log("load failed");
   });
 }
-
-var populateLocationsDiseases = function(game){
-  game.locations = [
-    { name: "Chimney Rock",
-      source: "/images/chimney-rock.jpg"},
-    { name: "Fort Laramie",
-      source: "/images/fort-laramie.jpg"},
-    { name: "Independence Rock",
-      source: "/images/independence-rock.jpg"},
-    { name: "Kansas River Crossing",
-      source: "/images/kansas-river-crossing.jpg"},
-    { name: "Fort Kearney",
-      source: "/images/fort-kearney.jpg"},
-    { name: "South Pass",
-      source: "/images/south-pass.jpg"},
-    { name: "Green River Crossing",
-      source: "/images/green-river-crossing.jpg"},
-    { name: "Fort Boise",
-      source: "/images/fort-boise.jpg"},
-    { name: "Blue Mountains",
-      source: "/images/blue-mountains.jpg"},
-    { name: "The Dalles",
-      source: "/images/the-dalles.jpg"}
-    ];
-  game.diseases = [
-    {name: "cholera", chance: 30},
-    {name: "dysentery", chance: 20},
-    {name: "broken leg", chance: 80},
-    {name: "broken arm", chance: 60},
-    {name: "bitten by snake", chance: 100},
-    {name: "influenza", chance: 20},
-    {name: "spontaneous combustion", chance: 5000}
-  ];
-};
 
 var loadGameFromDb = function(gameId){
   return Game.findById(gameId, {include: [{
@@ -210,37 +209,23 @@ var save = function(gameId, gameInstance){
     });
 };
 
-app.get('/continue', function(request, response) {
-  load(request.cookies.gameId)
-  .then(function(gameInstance){
-    response.render('outset', {
-                                  game: gameInstance.dataValues,
-                                  supplies: gameInstance.currentSupplies,
-                                  partyMembers: gameInstance.currentPartyMembers,
-                                });
-    });
-});
-
 app.get('/', function(request, response) {
   response.render('home');
 });
 
-app.get('/testing', function(request, response){
-    Game.findById(6).then(function(instance){
-    console.log(instance);
-  });
-});
-
 app.get('/numTravelers', function(request, response) {
+  // user inputs number of travelers
   response.render('numTravelers');
 });
 
 app.post('/partyMembers', function(request, response){
+  // user inputs party members' names
   let numberTravelers = request.body.quantity;
   response.render('partyMembers', {members: numberTravelers});
 });
 
 app.post('/outset', function(request, response){
+  //Create new game and display supply and party member info
   newGame(request.body)
   .then(function(gameInstance){
     response.cookie('gameId', gameInstance.dataValues.id);
@@ -258,8 +243,10 @@ app.get('/location', function(request, response){
   .then(function(gameInstance){
     response.render('location', {
                                   game: gameInstance.dataValues,
-                                  supplies: gameInstance.currentSupplies,
-                                  partyMembers: gameInstance.currentPartyMembers,
+                                  supplies: gameInstance.supplies,
+                                  partyMembers: gameInstance.partyMembers,
+                                  locations: locations,
+                                  diseases: diseases
                                 });
   });
 });
@@ -273,8 +260,8 @@ app.get('/turn',function(request,response){
   .then(function(gameInstance){
       response.render('location', {
                                     game: gameInstance.dataValues,
-                                    supplies: gameInstance.currentSupplies,
-                                    partyMembers: gameInstance.currentPartyMembers,
+                                    supplies: gameInstance.supplies,
+                                    partyMembers: gameInstance.partyMembers
                                   });
   })
   .catch(function(){
@@ -291,14 +278,27 @@ app.get('/look-around', function(request, response) {
   .then(function(gameInstance){
     response.render('look-around', {
                                   game: gameInstance.dataValues,
-                                  supplies: gameInstance.currentSupplies,
-                                  partyMembers: gameInstance.currentPartyMembers,
+                                  supplies: gameInstance.supplies,
+                                  partyMembers: gameInstance.partyMembers
                                 });
   })
 });
 
 app.get('/hunt', function(request, response) {
   response.render('hunt', {layout: false});
+});
+
+app.get('/continue', function(request, response) {
+  load(request.cookies.gameId)
+  .then(function(gameInstance){
+    response.render('location', {
+                                  game: gameInstance.dataValues,
+                                  supplies: gameInstance.supplies,
+                                  partyMembers: gameInstance.partyMembers,
+                                  locations: locations,
+                                  diseases: diseases
+                                });
+    });
 });
 
 app.listen(3000, function(){
