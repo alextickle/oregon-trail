@@ -69,15 +69,7 @@ var newGame = function(nameObj){
 
 var load = function(id){
   return loadGameFromDb(id)
-  .then(function(gameInstance){
-    return new Promise(function(resolve, reject){
-      populateLocationsDiseases(gameInstance.dataValues);
-      gameInstance.currentSupplies = gameInstance.dataValues.getSupplyObjs();
-      gameInstance.currentPartyMembers = gameInstance.dataValues.getPartyMemberObjs();
-      console.log("loaded game instance: ", gameInstance);
-      resolve(gameInstance);
-    });
-  }).catch(function(){
+  .catch(function(){
     console.log("load failed");
   });
 }
@@ -124,24 +116,6 @@ var loadGameFromDb = function(gameId){
       { model: PartyMember,
         as: 'partyMembers'}]
     });
-};
-
-var updateGameTwenty = function(){
-  return Game.update({
-    recentlyBroken: 'z',
-    recentlyRecovered: 'z',
-    recentlyDeceased: 'z',
-    recentlyFellIll: 'z',
-    recentlyFound: 'z',
-    loseReason: 'z',
-    brokenDown: true,
-    daysSpent: 3,
-    currentLocation: 3
-    }, {
-        where: {
-          id: 20
-        }
-  });
 };
 
 var save = function(gameId, gameInstance){
@@ -272,8 +246,8 @@ app.post('/outset', function(request, response){
     response.cookie('gameId', gameInstance.dataValues.id);
     response.render('outset', {
                                 game: gameInstance.dataValues,
-                                supplies: gameInstance.currentSupplies,
-                                partyMembers: gameInstance.currentPartyMembers,
+                                supplies: gameInstance.supplies,
+                                partyMembers: gameInstance.partyMembers
                               });
   });
 });
@@ -292,13 +266,11 @@ app.get('/location', function(request, response){
 
 app.get('/turn',function(request,response){
   let step;
-  console.log(request.cookies.gameId);
   load(request.cookies.gameId).then(function(gameInstance){
     // step = gameInstance.takeTurn();
     return save(request.cookies.gameId, gameInstance);
   })
   .then(function(gameInstance){
-      console.log("about to render!");
       response.render('location', {
                                     game: gameInstance.dataValues,
                                     supplies: gameInstance.currentSupplies,
