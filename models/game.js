@@ -25,42 +25,15 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     instanceMethods: {
-      getSupplyObjs: function(){
-        this._supplies = this._supplies || []
-        if(this._supplies.length > 0){
-          return this._supplies;
-        }
-        else {
-          for (var i = 0; i < this.supplies.length; i++){
-            this._supplies[i] = this.supplies[i].get();
-          }
-
-        }
-        return this._supplies;
-      },
-
-      getPartyMemberObjs: function(){
-        this._partyMembers = this._partyMembers || []
-        if(this._partyMembers.length > 0){
-          return this._partyMembers;
-        }
-        else {
-          for (var i = 0; i < this.partyMembers.length; i++){
-            this._partyMembers[i] = this.partyMembers[i].get();
-          }
-
-        }
-        return this._partyMembers;
-      },
-
       checkBrokeDown: function(){
-        for (var i = 0; i < 4; i++){
-          if(this.getBroke(10)){
-            this.supplies[i].quantity -= 1;
-            if (this.supplies[i].quantity < 0){
+        var indices = [0, 1, 2, 4];
+        for (var i = 0; i < indices.length; i++){
+          if(this.takeChance(10)){
+            this.supplies[indices[i]].quantity -= 1;
+            if (this.supplies[indices[i]].quantity < 0){
               this.brokenDown = true;
             }
-            this.recentlyBroken = this.supplies[i].name;
+            this.recentlyBroken = this.supplies[indices[i]].name;
             return true;
           }
         }
@@ -104,7 +77,7 @@ module.exports = function(sequelize, DataTypes) {
         }
       },
 
-      die: function(chance, partyMemberIndex){
+      checkIfDead: function(chance, partyMemberIndex){
         let i = partyMemberIndex;
         let randomNum = Math.floor(Math.random() * chance) + 1;
         if (randomNum === 1){
@@ -115,8 +88,7 @@ module.exports = function(sequelize, DataTypes) {
         return false;
       },
 
-      getBroke: function(chance){
-        //let i = partyMemberIndex
+      takeChance: function(chance){
         let randomNum = Math.floor(Math.random() * chance) + 1
         if (randomNum === 1){
           return true;
@@ -124,32 +96,52 @@ module.exports = function(sequelize, DataTypes) {
         return false;
       },
 
-      found: function(chance){
-        //let i = partyMemberIndex
-        let randomNum = Math.floor(Math.random() * chance) + 1
-        if (randomNum === 1){
-          return true;
-        }
-        return false;
+      getLocations: function(){
+        return [
+          { name: "Chimney Rock",
+            source: "/images/chimney-rock.jpg"},
+          { name: "Fort Laramie",
+            source: "/images/fort-laramie.jpg"},
+          { name: "Independence Rock",
+            source: "/images/independence-rock.jpg"},
+          { name: "Kansas River Crossing",
+            source: "/images/kansas-river-crossing.jpg"},
+          { name: "Fort Kearney",
+            source: "/images/fort-kearney.jpg"},
+          { name: "South Pass",
+            source: "/images/south-pass.jpg"},
+          { name: "Green River Crossing",
+            source: "/images/green-river-crossing.jpg"},
+          { name: "Fort Boise",
+            source: "/images/fort-boise.jpg"},
+          { name: "Blue Mountains",
+            source: "/images/blue-mountains.jpg"},
+          { name: "The Dalles",
+            source: "/images/the-dalles.jpg"}
+          ];
       },
 
-      getSick: function(chance){
-        //let i = partyMemberIndex
-        let randomNum = Math.floor(Math.random() * chance) + 1
-        if (randomNum === 1){
-          return true;
-        }
-        return false;
+      getDiseases: function(){
+        return [
+          {name: "cholera", chance: 30},
+          {name: "dysentery", chance: 20},
+          {name: "broken leg", chance: 80},
+          {name: "broken arm", chance: 60},
+          {name: "bitten by snake", chance: 100},
+          {name: "influenza", chance: 20},
+          {name: "spontaneous combustion", chance: 5000}
+        ];
       },
 
       checkSick: function(){
+        let diseases = this.getDiseases();
         for (var i = 0; i < this.partyMembers.length; i++){
           if (this.partyMembers[i].status == "well"){
-            for(var j=0; j < this.diseases.length; j++){
-                if(this.getSick(this.diseases[j].chance)){
+            for(var j = 0; j < diseases.length; j++){
+                if(this.takeChance(diseases[j].chance)){
                   this.partyMembers[i].status = "sick";
-                  this.partyMembers[i].disease = this.diseases[j].name;
-                  this.recentlyFellIll = this.partyMembers[i];
+                  this.partyMembers[i].disease = diseases[j].name;
+                  this.recentlyFellIll = this.partyMembers[i].name;
                   return true;
                 }
               }
@@ -158,42 +150,42 @@ module.exports = function(sequelize, DataTypes) {
         return false;
       },
 
-      checkDead: function(){
+      checkForDeaths: function(){
         for (var i = 0; i < this.partyMembers.length; i++){
           if (this.partyMembers[i].status == "sick"){
             switch(this.partyMembers[i].disease){
               case "dysentery":
-                if (this.die(2, i)){
+                if (this.checkIfDead(2, i)){
                   return true;
                 }
                 break;
               case "cholera":
-                if (this.die(2, i)){
+                if (this.checkIfDead(2, i)){
                   return true;
                 }
                 break;
               case "broken leg":
-                if (this.die(20, i)){
+                if (this.checkIfDead(20, i)){
                   return true;
                 }
                 break;
               case "broken arm":
-                if (this.die(100, i)){
+                if (this.checkIfDead(100, i)){
                   return true;
                 }
                 break;
               case "bitten by snake":
-                if (this.die(3, i)){
+                if (this.checkIfDead(3, i)){
                   return true;
                 }
                 break;
               case "influenza":
-                if (this.die(50, i)){
+                if (this.checkIfDead(50, i)){
                   return true;
                 }
                 break;
               case "spontaneous combustion":
-                if (this.die(1, i)){
+                if (this.checkIfDead(1, i)){
                   return true;
                 }
                 break;
@@ -289,14 +281,13 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       takeTurn: function(){
-        console.log("inside take turn");
-        if (this.currentLocation === this.locations.length-1 ){
-          return "this-won";
+        if (this.currentLocation === this.getLocations().length - 1){
+          return "game-won";
         }
         if (this.checkLose()){
           return "lose";
         }
-        if (this.checkDead()){
+        if (this.checkForDeaths()){
           this.daysSpent += 5;
           this.supplies[5].quantity -= (2 * this.headCount());
           if (this.supplies[5].quantity < 0){

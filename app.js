@@ -1,52 +1,22 @@
 let Game = require('./models').Game;
 let Supply = require('./models').Supply;
 let PartyMember = require('./models').PartyMember;
+
 let express = require('express');
 let expressLayouts = require('express-ejs-layouts');
 let app = express();
 let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
+
+// TODO get rid of these global variables
 var gameInstance;
 var game;
 
-let locations = [
-  { name: "Chimney Rock",
-    source: "/images/chimney-rock.jpg"},
-  { name: "Fort Laramie",
-    source: "/images/fort-laramie.jpg"},
-  { name: "Independence Rock",
-    source: "/images/independence-rock.jpg"},
-  { name: "Kansas River Crossing",
-    source: "/images/kansas-river-crossing.jpg"},
-  { name: "Fort Kearney",
-    source: "/images/fort-kearney.jpg"},
-  { name: "South Pass",
-    source: "/images/south-pass.jpg"},
-  { name: "Green River Crossing",
-    source: "/images/green-river-crossing.jpg"},
-  { name: "Fort Boise",
-    source: "/images/fort-boise.jpg"},
-  { name: "Blue Mountains",
-    source: "/images/blue-mountains.jpg"},
-  { name: "The Dalles",
-    source: "/images/the-dalles.jpg"}
-  ];
-
-  let diseases = [
-    {name: "cholera", chance: 30},
-    {name: "dysentery", chance: 20},
-    {name: "broken leg", chance: 80},
-    {name: "broken arm", chance: 60},
-    {name: "bitten by snake", chance: 100},
-    {name: "influenza", chance: 20},
-    {name: "spontaneous combustion", chance: 5000}
-  ];
-
 app.use(express.static('public'));
-app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressLayouts);
+app.set('view engine', 'ejs');
 
 // TODO make all game methods class methods
 
@@ -107,8 +77,8 @@ var load = function(id){
   });
 }
 
-var loadGameFromDb = function(gameId){
-  return Game.findById(gameId, {include: [{
+var loadGameFromDb = function(id){
+  return Game.findById(id, {include: [{
         model: Supply,
         as: 'supplies'
       },
@@ -117,68 +87,66 @@ var loadGameFromDb = function(gameId){
     });
 };
 
-var save = function(gameId, gameInstance){
-  return loadGameFromDb(gameId)
-  .then(function(instance){
-    return Game.update({
-      recentlyBroken: game.recentlyBroken,
-      recentlyRecovered: game.recentlyRecovered,
-      recentlyDeceased: game.recentlyDeceased,
-      recentlyFellIll: game.recentlyFellIll,
-      recentlyFound: game.recentlyFound,
-      loseReason: game.loseReason,
-      brokenDown: game.brokenDown,
-      daysSpent: game.daysSpent,
-      currentLocation: game.currentLocation
-    }, {
-        where: {
-          id: gameId
-        }
-      });
+var save = function(instance){
+  console.log("game instance inside save call: ", instance);
+  return Game.update({
+    recentlyBroken: instance.recentlyBroken,
+    recentlyRecovered: instance.recentlyRecovered,
+    recentlyDeceased: instance.recentlyDeceased,
+    recentlyFellIll: instance.recentlyFellIll,
+    recentlyFound: instance.recentlyFound,
+    loseReason: instance.loseReason,
+    brokenDown: instance.brokenDown,
+    daysSpent: instance.daysSpent,
+    currentLocation: instance.currentLocation
+  }, {
+      where: {
+        id: instance.id
+      }
   })
   .then(function(){
       console.log("saving supplies");
-      var supplies = game.currentSupplies;
+      var supplies = instance.supplies;
       var promise1 = Supply.update({
         quantity: supplies[0].quantity
       }, {where: {
-        gameId: gameId,
+        gameId: instance.id,
         name: "wheels"
       }});
       var promise2 = Supply.update({
         quantity: supplies[1].quantity
       }, {where: {
-        gameId: gameId,
+        gameId: instance.id,
         name: "axles"
       }});
       var promise3 = Supply.update({
         quantity: supplies[2].quantity
       }, {where: {
-        gameId: gameId,
+        gameId: instance.id,
         name: "tongues"
       }});
       var promise4 = Supply.update({
         quantity: supplies[3].quantity
       }, {where: {
-        gameId: gameId,
+        gameId: instance.id,
         name: "sets of clothing"
       }});
       var promise5 =Supply.update({
         quantity: supplies[4].quantity
       }, {where: {
-        gameId: gameId,
+        gameId: instance.id,
         name: "oxen"
       }});
       var promise6 = Supply.update({
         quantity: supplies[5].quantity
       }, {where: {
-        gameId: gameId,
+        gameId: instance.id,
         name: "food"
       }});
       var promise7 = Supply.update({
         quantity: supplies[6].quantity
       }, {where: {
-        gameId: gameId,
+        gameId: instance.id,
         name: "bullets"
       }});
       var promises = [promise1, promise2, promise3,
@@ -186,14 +154,15 @@ var save = function(gameId, gameInstance){
       return Promise.all(promises);
     })
     .then(function(){
-      var partyMembers = gameInstance.currentPartyMembers;
+      console.log("saving party members");
+      var partyMembers = instance.partyMembers;
       var promises = [];
       for (var i = 0; i < partyMembers.length; i++){
         promises.push(PartyMember.update({
           status: partyMembers[i].status,
           disease: partyMembers[i].disease
         }, {where: {
-          gameId: gameId,
+          gameId: instance.id,
           name: partyMembers[i].name
         }}));
       }
@@ -201,7 +170,7 @@ var save = function(gameId, gameInstance){
     })
     .then(function(){
       return new Promise(function(resolve, reject){
-        resolve(gameInstance);
+        resolve(instance);
       });
     })
     .catch(function(){
@@ -245,24 +214,28 @@ app.get('/location', function(request, response){
                                   game: gameInstance.dataValues,
                                   supplies: gameInstance.supplies,
                                   partyMembers: gameInstance.partyMembers,
-                                  locations: locations,
-                                  diseases: diseases
+                                  locations: gameInstance.getLocations(),
+                                  diseases: gameInstance.getDiseases()
                                 });
   });
 });
 
 app.get('/turn',function(request,response){
   let step;
-  load(request.cookies.gameId).then(function(gameInstance){
-    // step = gameInstance.takeTurn();
-    return save(request.cookies.gameId, gameInstance);
+  load(request.cookies.gameId)
+  .then(function(gameInstance){
+    step = gameInstance.takeTurn();
+    console.log("after take turn: ", gameInstance);
+    return save(gameInstance);
   })
   .then(function(gameInstance){
-      response.render('location', {
-                                    game: gameInstance.dataValues,
-                                    supplies: gameInstance.supplies,
-                                    partyMembers: gameInstance.partyMembers
-                                  });
+      response.render(step, {
+                              game: gameInstance.dataValues,
+                              supplies: gameInstance.supplies,
+                              partyMembers: gameInstance.partyMembers,
+                              locations: gameInstance.getLocations(),
+                              diseases: gameInstance.getDiseases()
+                            });
   })
   .catch(function(){
     console.log("save failed (called from route)");
@@ -273,7 +246,7 @@ app.get('/look-around', function(request, response) {
   load(request.cookies.gameId)
   .then(function(gameInstance){
     gameInstance.lookAround();
-    return save(request.cookies.gameId, gameInstance);
+    return save(gameInstance);
   })
   .then(function(gameInstance){
     response.render('look-around', {
@@ -289,16 +262,21 @@ app.get('/hunt', function(request, response) {
 });
 
 app.get('/continue', function(request, response) {
-  load(request.cookies.gameId)
-  .then(function(gameInstance){
-    response.render('location', {
-                                  game: gameInstance.dataValues,
-                                  supplies: gameInstance.supplies,
-                                  partyMembers: gameInstance.partyMembers,
-                                  locations: locations,
-                                  diseases: diseases
-                                });
-    });
+  if (request.cookies.gameId){
+    load(request.cookies.gameId)
+    .then(function(gameInstance){
+      response.render('location', {
+                                    game: gameInstance.dataValues,
+                                    supplies: gameInstance.supplies,
+                                    partyMembers: gameInstance.partyMembers,
+                                    locations: gameInstance.getLocations(),
+                                    diseases: gameInstance.getDiseases()
+                                  });
+      });
+  }
+  else {
+    response.render('home');
+  }
 });
 
 app.listen(3000, function(){
