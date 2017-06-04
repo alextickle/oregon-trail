@@ -24,7 +24,7 @@ module.exports = function(sequelize, DataTypes) {
         });
       },
 
-      var compare = function(a, b){
+      compare: function(a, b){
         if (a.name[0] < b.name[0]){
           return -1;
         }
