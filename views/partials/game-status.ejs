@@ -1,3 +1,12 @@
+<% var compare = function(a, b){
+    if (a.name[0] < b.name[0]){
+      return -1;
+    }
+    else {
+      return 1;
+    }
+  }
+  supplies.sort(compare) %>
 <div class="row">
   <table id="players">
     <thead>
@@ -13,38 +22,41 @@
       </tr>
     <%}%>
   </table>
+  <% for (var i = 0; i < supplies.length; i++){ %>
+    <p><%= supplies[i].name %></p>
+  <% } %>
   <table id="supplies">
     <thead>
       <th>Supply</th>
       <th>Quantity</th>
     </thead>
     <tr>
-      <td>oxen</td>
-      <td><%= supplies[4].quantity %></td>
-    </tr>
-    <tr>
-      <td>Sets of Clothing</td>
+      <td>Oxen</td>
       <td><%= supplies[3].quantity %></td>
     </tr>
     <tr>
+      <td>Sets of Clothing</td>
+      <td><%= supplies[4].quantity %></td>
+    </tr>
+    <tr>
       <td>Bullets</td>
-      <td><%= supplies[6].quantity %></td>
-    </tr>
-    <tr>
-      <td>Wagon Wheels</td>
-      <td><%= supplies[0].quantity %></td>
-    </tr>
-    <tr>
-      <td>Wagon Axels</td>
       <td><%= supplies[1].quantity %></td>
     </tr>
     <tr>
+      <td>Wagon Wheels</td>
+      <td><%= supplies[6].quantity %></td>
+    </tr>
+    <tr>
+      <td>Wagon Axels</td>
+      <td><%= supplies[0].quantity %></td>
+    </tr>
+    <tr>
       <td>Wagon Tongues</td>
-      <td><%= supplies[2].quantity %></td>
+      <td><%= supplies[5].quantity %></td>
     </tr>
     <tr>
       <td>Pounds of Food</td>
-      <td><%= supplies[5].quantity %></td>
+      <td><%= supplies[2].quantity %></td>
     </tr>
   </table><br>
   <h4 id="days">Days on the trail: <%=game.daysSpent%> </h4>

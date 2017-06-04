@@ -11,6 +11,7 @@ let cookieParser = require('cookie-parser');
 // TODO get rid of these global variables
 var gameInstance;
 var game;
+var result;
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -20,17 +21,36 @@ app.set('view engine', 'ejs');
 
 // TODO make all game methods class methods
 
+var randomizeSupplies = function(){
+  var quantities = [];
+  // wheels (3-6)
+  quantities.push(Math.floor(Math.random() * 4 + 3));
+  // axles (2-5)
+  quantities.push(Math.floor(Math.random() * 4 + 2));
+  // tongues (2-3)
+  quantities.push(Math.floor(Math.random() * 2 + 3));
+  // sets of clothes (6-12)
+  quantities.push(Math.floor(Math.random() * 7 + 6));
+  // oxen (2-5)
+  quantities.push(Math.floor(Math.random() * 4 + 2));
+  // food (2-5)
+  quantities.push(Math.floor(Math.random() * 100 + 200));
+  // bullets (2-5)
+  quantities.push(Math.floor(Math.random() * 75 + 120));
+  return quantities;
+}
+
 var newGame = function(nameObj){
   var id;
   var game;
   var nameObj = nameObj;
   return Game.create({
-    recentlyBroken: 'h',
-    recentlyRecovered: 'h',
-    recentlyDeceased: 'h',
-    recentlyFellIll: 'h',
-    recentlyFound: 'h',
-    loseReason: 'h',
+    recentlyBroken: 'none',
+    recentlyRecovered: 'none',
+    recentlyDeceased: 'none',
+    recentlyFellIll: 'none',
+    recentlyFound: 'none',
+    loseReason: 'none',
     brokenDown: false,
     daysSpent: 0,
     currentLocation: 0
@@ -50,7 +70,7 @@ var newGame = function(nameObj){
   })
   .then(function(){
     var supplyNames = ["wheels", "axles", "tongues", "sets of clothing", "oxen", "food", "bullets"];
-    var quantities = [3, 3, 2, 10, 4, 300, 100];
+    var quantities = randomizeSupplies();
     var suppliesToWrite = [];
     for (var i = 0; i < 7; i++){
       suppliesToWrite.push({
@@ -88,7 +108,6 @@ var loadGameFromDb = function(id){
 };
 
 var save = function(instance){
-  console.log("game instance inside save call: ", instance);
   return Game.update({
     recentlyBroken: instance.recentlyBroken,
     recentlyRecovered: instance.recentlyRecovered,
@@ -105,7 +124,6 @@ var save = function(instance){
       }
   })
   .then(function(){
-      console.log("saving supplies");
       var supplies = instance.supplies;
       var promise1 = Supply.update({
         quantity: supplies[0].quantity
@@ -154,7 +172,6 @@ var save = function(instance){
       return Promise.all(promises);
     })
     .then(function(){
-      console.log("saving party members");
       var partyMembers = instance.partyMembers;
       var promises = [];
       for (var i = 0; i < partyMembers.length; i++){
@@ -221,21 +238,20 @@ app.get('/location', function(request, response){
 });
 
 app.get('/turn',function(request,response){
-  let step;
   load(request.cookies.gameId)
   .then(function(gameInstance){
-    step = gameInstance.takeTurn();
-    console.log("after take turn: ", gameInstance);
+    result = gameInstance.takeTurn();
     return save(gameInstance);
   })
   .then(function(gameInstance){
-      response.render(step, {
-                              game: gameInstance.dataValues,
-                              supplies: gameInstance.supplies,
-                              partyMembers: gameInstance.partyMembers,
-                              locations: gameInstance.getLocations(),
-                              diseases: gameInstance.getDiseases()
-                            });
+    response.render(result.step, {
+                            game: gameInstance.dataValues,
+                            supplies: gameInstance.supplies,
+                            partyMembers: gameInstance.partyMembers,
+                            locations: gameInstance.getLocations(),
+                            diseases: gameInstance.getDiseases(),
+                            message: result.message
+                          });
   })
   .catch(function(){
     console.log("save failed (called from route)");

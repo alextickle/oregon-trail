@@ -22,6 +22,15 @@ module.exports = function(sequelize, DataTypes) {
           foreignKey: 'gameId',
           as: 'partyMembers'
         });
+      },
+
+      var compare = function(a, b){
+        if (a.name[0] < b.name[0]){
+          return -1;
+        }
+        else {
+          return 1;
+        }
       }
     },
     instanceMethods: {
@@ -240,6 +249,7 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       lookAround: function(){
+        this.supplies.sort(compare);
         for (var i = 0; i < this.supplies.length; i++){
           if(this.found(10)){
             switch(i){
@@ -281,11 +291,18 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       takeTurn: function(){
+        this.supplies.sort(compare)
         if (this.currentLocation === this.getLocations().length - 1){
-          return "game-won";
+          return {
+            step: "game-won",
+            message: ""
+          };
         }
         if (this.checkLose()){
-          return "lose";
+          return {
+            step: "lose",
+            message: ""
+          };
         }
         if (this.checkForDeaths()){
           this.daysSpent += 5;
@@ -293,10 +310,16 @@ module.exports = function(sequelize, DataTypes) {
           if (this.supplies[5].quantity < 0){
             this.supplies[5].quantity = 0;
           }
-          return "dead";
+          return {
+            step: "dead",
+            message: ""
+          };
         }
         if (this.checkRecovered()){
-          return "recovered";
+          return {
+            step: "recovered",
+            message: ""
+          };
         }
         if (this.checkSick()){
           this.daysSpent += 2;
@@ -304,10 +327,33 @@ module.exports = function(sequelize, DataTypes) {
           if (this.supplies[5].quantity < 0){
             this.supplies[5].quantity = 0;
           }
-          return "sick";
+          return {
+            step: "sick",
+            message: ""
+          };
         }
         if(this.checkBrokeDown()){
-          return "broke";
+          let msg;
+          switch(this.recentlyBroken){
+            case "wheels":
+              msg = "One wheel has broken!";
+              break;
+            case "axles":
+              msg = "One axle has broken!";
+              break;
+            case "tongue":
+              msg = "One wagon tongue has broken!";
+              break;
+            case "oxen":
+              msg = "One ox has died!";
+              break;
+            default:
+              break;
+          }
+          return {
+            step: "broke",
+            message: msg
+          };
         }
         this.currentLocation++;
         this.supplies[5].quantity -= (5 * this.headCount()) ;
@@ -315,7 +361,10 @@ module.exports = function(sequelize, DataTypes) {
           this.supplies[5].quantity = 0;
         }
         this.daysSpent += 10;
-        return 'location';
+        return {
+          step: "location",
+          msg: ""
+        };
       }
     }
   });
