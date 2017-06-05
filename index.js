@@ -85,7 +85,6 @@ var newGame = function(nameObj){
     return Supply.bulkCreate(suppliesToWrite);
   })
   .then(function(){
-    console.log("game created, ID: ", id)
     return load(id);
   })
   .catch(function(){
@@ -128,8 +127,6 @@ var save = function(instance){
   })
   .then(function(){
       var supplies = instance.supplies;
-      console.log("SUPPLIES: ", supplies);
-      console.log("first supply: ", supplies[0]);
       var promise1 = Supply.update({
         quantity: supplies[6].quantity
       }, {where: {

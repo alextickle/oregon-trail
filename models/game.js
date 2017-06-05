@@ -35,11 +35,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     instanceMethods: {
       checkBrokeDown: function(){
-        var indices = [0, 1, 2, 4];
+        var indices = [0, 3, 5, 6];
         for (var i = 0; i < indices.length; i++){
           if(this.takeChance(10)){
             this.supplies[indices[i]].quantity -= 1;
-            if (this.supplies[indices[i]].quantity < 0){
+            if (this.supplies[indices[i]].quantity < 1){
               this.brokenDown = true;
             }
             this.recentlyBroken = this.supplies[indices[i]].name;
@@ -254,27 +254,27 @@ module.exports = function(sequelize, DataTypes) {
           if(this.found(10)){
             switch(i){
               case 0:
-                this.supplies[0].quantity += 1;
+                this.supplies[6].quantity += 1;
                 this.recentlyFound = "wagon wheel";
                 break;
               case 1:
-                this.supplies[1].quantity += 1;
+                this.supplies[0].quantity += 1;
                 this.recentlyFound = "wagon axle";
                 break;
               case 2:
-                this.supplies[2].quantity += 1;
+                this.supplies[5].quantity += 1;
                 this.recentlyFound = "wagon tongues";
                 break;
               case 3:
-                this.supplies[3].quantity += 3;
+                this.supplies[4].quantity += 3;
                 this.recentlyFound = "sets of clothes";
                 break;
               case 4:
-                this.supplies[4].quantity += 1;
+                this.supplies[3].quantity += 1;
                 this.recentlyFound = "one ox";
                 break;
               case 5:
-                this.supplies[5].quantity += 50;
+                this.supplies[2].quantity += 50;
                 this.recentlyFound = "50 pounds of food";
                 break;
               default:
@@ -282,7 +282,7 @@ module.exports = function(sequelize, DataTypes) {
                 break;
             }
             this.daysSpent += 2;
-            this.supplies[5].quantity -= (2 * this.headCount());
+            this.supplies[2].quantity -= (2 * this.headCount());
             return true;
           }
         }
@@ -306,9 +306,9 @@ module.exports = function(sequelize, DataTypes) {
         }
         if (this.checkForDeaths()){
           this.daysSpent += 5;
-          this.supplies[5].quantity -= (2 * this.headCount());
-          if (this.supplies[5].quantity < 0){
-            this.supplies[5].quantity = 0;
+          this.supplies[2].quantity -= (2 * this.headCount());
+          if (this.supplies[2].quantity < 0){
+            this.supplies[2].quantity = 0;
           }
           return {
             step: "dead",
@@ -323,9 +323,9 @@ module.exports = function(sequelize, DataTypes) {
         }
         if (this.checkSick()){
           this.daysSpent += 2;
-          this.supplies[5].quantity -= (1 * this.headCount());
-          if (this.supplies[5].quantity < 0){
-            this.supplies[5].quantity = 0;
+          this.supplies[2].quantity -= (1 * this.headCount());
+          if (this.supplies[2].quantity < 0){
+            this.supplies[2].quantity = 0;
           }
           return {
             step: "sick",
@@ -341,7 +341,7 @@ module.exports = function(sequelize, DataTypes) {
             case "axles":
               msg = "One axle has broken!";
               break;
-            case "tongue":
+            case "tongues":
               msg = "One wagon tongue has broken!";
               break;
             case "oxen":
@@ -356,9 +356,9 @@ module.exports = function(sequelize, DataTypes) {
           };
         }
         this.currentLocation++;
-        this.supplies[5].quantity -= (5 * this.headCount()) ;
-        if (this.supplies[5].quantity < 0){
-          this.supplies[5].quantity = 0;
+        this.supplies[2].quantity -= (5 * this.headCount()) ;
+        if (this.supplies[2].quantity < 0){
+          this.supplies[2].quantity = 0;
         }
         this.daysSpent += 10;
         return {
