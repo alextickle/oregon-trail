@@ -36,9 +36,9 @@ var randomizeSupplies = function(){
   quantities.push(Math.floor(Math.random() * 7 + 6));
   // oxen (2-5)
   quantities.push(Math.floor(Math.random() * 4 + 2));
-  // food (2-5)
+  // food (200-299)
   quantities.push(Math.floor(Math.random() * 100 + 200));
-  // bullets (2-5)
+  // bullets (120-214)
   quantities.push(Math.floor(Math.random() * 75 + 120));
   return quantities;
 }
@@ -128,44 +128,46 @@ var save = function(instance){
   })
   .then(function(){
       var supplies = instance.supplies;
+      console.log("SUPPLIES: ", supplies);
+      console.log("first supply: ", supplies[0]);
       var promise1 = Supply.update({
-        quantity: supplies[0].quantity
+        quantity: supplies[6].quantity
       }, {where: {
         gameId: instance.id,
         name: "wheels"
       }});
       var promise2 = Supply.update({
-        quantity: supplies[1].quantity
+        quantity: supplies[0].quantity
       }, {where: {
         gameId: instance.id,
         name: "axles"
       }});
       var promise3 = Supply.update({
-        quantity: supplies[2].quantity
+        quantity: supplies[5].quantity
       }, {where: {
         gameId: instance.id,
         name: "tongues"
       }});
       var promise4 = Supply.update({
-        quantity: supplies[3].quantity
+        quantity: supplies[4].quantity
       }, {where: {
         gameId: instance.id,
         name: "sets of clothing"
       }});
       var promise5 =Supply.update({
-        quantity: supplies[4].quantity
+        quantity: supplies[3].quantity
       }, {where: {
         gameId: instance.id,
         name: "oxen"
       }});
       var promise6 = Supply.update({
-        quantity: supplies[5].quantity
+        quantity: supplies[2].quantity
       }, {where: {
         gameId: instance.id,
         name: "food"
       }});
       var promise7 = Supply.update({
-        quantity: supplies[6].quantity
+        quantity: supplies[1].quantity
       }, {where: {
         gameId: instance.id,
         name: "bullets"
@@ -202,15 +204,15 @@ app.get('/', function(request, response) {
   response.render('home');
 });
 
-app.get('/numTravelers', function(request, response) {
+app.get('/num-travelers', function(request, response) {
   // user inputs number of travelers
-  response.render('numTravelers');
+  response.render('num-travelers');
 });
 
-app.post('/partyMembers', function(request, response){
+app.post('/party-members', function(request, response){
   // user inputs party members' names
   let numberTravelers = request.body.quantity;
-  response.render('partyMembers', {members: numberTravelers});
+  response.render('party-members', {members: numberTravelers});
 });
 
 app.post('/outset', function(request, response){
@@ -244,6 +246,7 @@ app.get('/turn',function(request,response){
   load(request.cookies.gameId)
   .then(function(gameInstance){
     result = gameInstance.takeTurn();
+    console.log("RESULT: ", result);
     return save(gameInstance);
   })
   .then(function(gameInstance){
@@ -257,7 +260,7 @@ app.get('/turn',function(request,response){
                           });
   })
   .catch(function(){
-    console.log("save failed (called from route)");
+    console.log("turn failed (called from route)");
   })
 });
 

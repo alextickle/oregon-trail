@@ -291,7 +291,7 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       takeTurn: function(){
-        this.supplies.sort(compare)
+        this.supplies.sort(Game.compare);
         if (this.currentLocation === this.getLocations().length - 1){
           return {
             step: "game-won",
@@ -300,7 +300,7 @@ module.exports = function(sequelize, DataTypes) {
         }
         if (this.checkLose()){
           return {
-            step: "lose",
+            step: "game-lost",
             message: ""
           };
         }
