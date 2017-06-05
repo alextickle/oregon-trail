@@ -1,8 +1,10 @@
-<form class="" action="/outset" method="post">
-  <% for (let i=1; i<= members; i++) {%>
-    <label>Traveler <%=i%>
-      <input type="text" name=<%="traveler"+i%> value="">
-    </label>
-<% } %>
-  <input type="submit" name="" value="Gather Supplies">
-</form>
+<div class="row">
+  <form class="" action="/outset" method="post">
+    <% for (let i=1; i<= members; i++) {%>
+      <label>Traveler <%=i%>
+        <input type="text" name=<%="traveler"+i%> value="">
+      </label>
+  <% } %>
+    <input type="submit" name="" value="Gather Supplies">
+  </form>
+</div>

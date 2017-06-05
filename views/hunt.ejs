@@ -1,8 +1,9 @@
 <html>
 <head>
   <title>Hunt</title>
-  <link href="hunt.css" rel="stylesheet">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+  <link href="hunt.css" rel="stylesheet">
   <script
   src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
@@ -27,7 +28,20 @@
       </div>
     </div>
     <div class="row">
-      <p id="results"></p>
+      <div class="col-sm-4">
+      </div>
+      <div class="col-sm-4">
+        <br>
+        <h4 id="results">Up to shoot, left right to move</h4>
+      </div>
+      <div class="col-sm-4">
+      </div>
+    </div>
+    <div class="row">
+      <% let food; %>
+      <form action='<%='/post-hunt/' + food %>' method="post">
+        <input type="submit">
+      </form>
     </div>
   </div>
 </body>

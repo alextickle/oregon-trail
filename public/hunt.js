@@ -106,12 +106,13 @@ function startAnimals(){
 }
 
 function startHuntTimer(){
-  state.huntTimer = setInterval(clearAnimalTimer, 30000);
+  state.huntTimer = setInterval(clearAnimalTimer, 5000);
 }
 
 function clearAnimalTimer(){
   clearTimeout(state.animalTimer);
-  document.getElementById("results").innerHTML = "You killed " + state.kills + " animals and received " + Math.floor(Math.random() * state.kills * 10) + " pounds of food";
+  foodGained = Math.floor(Math.random() * state.kills * 10);
+  document.getElementById("results").innerHTML = "You killed " + state.kills + " animals."
   $(document).unbind("keydown");
 }
 
@@ -188,6 +189,7 @@ $(document).keydown(function(e) {
     }
     e.preventDefault();
 });
+
 
 $(document).ready(function(){
   initGrid();

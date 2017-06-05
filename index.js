@@ -271,13 +271,38 @@ app.get('/look-around', function(request, response) {
     response.render('look-around', {
                                   game: gameInstance.dataValues,
                                   supplies: gameInstance.supplies,
-                                  partyMembers: gameInstance.partyMembers
+                                  partyMembers: gameInstance.partyMembers,
+                                  locations: gameInstance.getLocations()
                                 });
   })
 });
 
 app.get('/hunt', function(request, response) {
-  response.render('hunt', {layout: false});
+  response.render('hunt', {
+                            layout: false,
+                            gameId: request.cookies.gameId
+                          });
+});
+
+app.post('/post-hunt/:food', function(request, response) {
+  var food = request.params.food;
+  console.log("food: ", food);
+  load(request.cookies.gameId)
+  .then(function(gameInstance){
+    gameInstance.supplies.sort(Game.compare);
+    gameInstance.supplies[2] += food;
+    return save(gameInstance);
+  })
+  .then(function(gameInstance){
+    response.render('post-hunt', {
+                                  food: food,
+                                  game: gameInstance.dataValues,
+                                  supplies: gameInstance.supplies,
+                                  partyMembers: gameInstance.partyMembers,
+                                  locations: gameInstance.getLocations(),
+                                  diseases: gameInstance.getDiseases()
+                                })
+  })
 });
 
 app.get('/continue', function(request, response) {

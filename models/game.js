@@ -249,36 +249,36 @@ module.exports = function(sequelize, DataTypes) {
       },
 
       lookAround: function(){
-        this.supplies.sort(compare);
+        this.supplies.sort(Game.compare);
         for (var i = 0; i < this.supplies.length; i++){
-          if(this.found(10)){
+          if(this.takeChance(10)){
             switch(i){
               case 0:
                 this.supplies[6].quantity += 1;
-                this.recentlyFound = "wagon wheel";
+                this.recentlyFound = "one wagon wheel.";
                 break;
               case 1:
                 this.supplies[0].quantity += 1;
-                this.recentlyFound = "wagon axle";
+                this.recentlyFound = "one wagon axle.";
                 break;
               case 2:
                 this.supplies[5].quantity += 1;
-                this.recentlyFound = "wagon tongues";
+                this.recentlyFound = "one wagon tongue.";
                 break;
               case 3:
                 this.supplies[4].quantity += 3;
-                this.recentlyFound = "sets of clothes";
+                this.recentlyFound = "three sets of clothes.";
                 break;
               case 4:
                 this.supplies[3].quantity += 1;
-                this.recentlyFound = "one ox";
+                this.recentlyFound = "one ox.";
                 break;
               case 5:
                 this.supplies[2].quantity += 50;
-                this.recentlyFound = "50 pounds of food";
+                this.recentlyFound = "50 pounds of food.";
                 break;
               default:
-                this.recentlyFound = "nothing";
+                this.recentlyFound = "nothing.";
                 break;
             }
             this.daysSpent += 2;
@@ -286,7 +286,7 @@ module.exports = function(sequelize, DataTypes) {
             return true;
           }
         }
-        this.recentlyFound = "nothing";
+        this.recentlyFound = "nothing.";
         return false;
       },
 
