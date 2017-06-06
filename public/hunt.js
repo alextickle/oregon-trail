@@ -114,6 +114,9 @@ function clearAnimalTimer(){
   foodGained = Math.floor(Math.random() * state.kills * 10);
   document.getElementById("results").innerHTML = "You killed " + state.kills + " animals."
   $(document).unbind("keydown");
+  $("#foodForm").attr("action", "/post-hunt/" + foodGained);
+  $("#foodForm").show();
+
 }
 
 function shoot(){

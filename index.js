@@ -15,7 +15,6 @@ var result;
 
 app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/views');
-app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressLayouts);
@@ -286,11 +285,10 @@ app.get('/hunt', function(request, response) {
 
 app.post('/post-hunt/:food', function(request, response) {
   var food = request.params.food;
-  console.log("food: ", food);
   load(request.cookies.gameId)
   .then(function(gameInstance){
     gameInstance.supplies.sort(Game.compare);
-    gameInstance.supplies[2] += food;
+    gameInstance.supplies[2].quantity = (parseInt(food) + parseInt(gameInstance.supplies[2].quantity)).toString();
     return save(gameInstance);
   })
   .then(function(gameInstance){

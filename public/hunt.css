@@ -9,6 +9,10 @@ table {
   margin: auto;
 }
 
+#foodForm {
+  display: none;
+}
+
 td {
   height: 20px;
   width: 20px;
