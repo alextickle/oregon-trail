@@ -19,9 +19,13 @@ body {
   font-family: 'VT323', monospace;
 }
 
-h1, h4 {
+h1, h2, h4 {
   text-align: center;
   color: white;
+}
+
+.cnter {
+  
 }
 
 label {
@@ -83,6 +87,10 @@ button {
   background-color: black;
   border: white solid 2px;
   color: white;
+}
+
+.buffer {
+  margin-top: 150px;
 }
 
 #top-row {

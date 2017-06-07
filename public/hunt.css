@@ -9,6 +9,11 @@ table {
   margin: auto;
 }
 
+input {
+  background-color: black;
+  color: white;
+}
+
 #foodForm {
   display: none;
 }

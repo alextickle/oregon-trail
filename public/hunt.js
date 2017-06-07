@@ -19,6 +19,7 @@ var state = {
   clearRows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
   reloaded: true,
   kills: 0,
+  shots: 0,
   render: function(){
     for (var i = 0; i < 20; i++) {
       for (var j = 0; j < 20; j++) {
@@ -106,7 +107,7 @@ function startAnimals(){
 }
 
 function startHuntTimer(){
-  state.huntTimer = setInterval(clearAnimalTimer, 5000);
+  state.huntTimer = setInterval(clearAnimalTimer, 20000);
 }
 
 function clearAnimalTimer(){
@@ -114,12 +115,13 @@ function clearAnimalTimer(){
   foodGained = Math.floor(Math.random() * state.kills * 10);
   document.getElementById("results").innerHTML = "You killed " + state.kills + " animals."
   $(document).unbind("keydown");
-  $("#foodForm").attr("action", "/post-hunt/" + foodGained);
+  $("#foodForm").attr("action", "/post-hunt/" + foodGained + "/" + state.shots);
   $("#foodForm").show();
 
 }
 
 function shoot(){
+  state.shots++;
   var bulletTimer = setInterval(bulletAdvances, 50)
   state.reloaded = false;
   state.currentBullet.timer = bulletTimer;

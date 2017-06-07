@@ -1,10 +1,14 @@
+<div class="buffer" class="row">
+</div>
 <div class="row">
+  <h2>Party Members</h2>
   <form class="" action="/outset" method="post">
     <% for (let i=1; i<= members; i++) {%>
       <label>Traveler <%=i%>
         <input type="text" name=<%="traveler"+i%> value="">
-      </label>
+      </label><br>
   <% } %>
+    <br>
     <input type="submit" name="" value="Gather Supplies">
   </form>
 </div>

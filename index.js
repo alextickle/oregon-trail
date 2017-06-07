@@ -283,17 +283,20 @@ app.get('/hunt', function(request, response) {
                           });
 });
 
-app.post('/post-hunt/:food', function(request, response) {
+app.post('/post-hunt/:food/:bullets', function(request, response) {
   var food = request.params.food;
+  var bullets = request.params.bullets;
   load(request.cookies.gameId)
   .then(function(gameInstance){
     gameInstance.supplies.sort(Game.compare);
     gameInstance.supplies[2].quantity = (parseInt(food) + parseInt(gameInstance.supplies[2].quantity)).toString();
+    gameInstance.supplies[1].quantity = (parseInt(gameInstance.supplies[1].quantity) - parseInt(bullets)).toString();
     return save(gameInstance);
   })
   .then(function(gameInstance){
     response.render('post-hunt', {
                                   food: food,
+                                  bullets: bullets,
                                   game: gameInstance.dataValues,
                                   supplies: gameInstance.supplies,
                                   partyMembers: gameInstance.partyMembers,
