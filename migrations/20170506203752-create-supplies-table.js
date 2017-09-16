@@ -1,28 +1,38 @@
+const pushid = require('pushid');
+
 module.exports = {
   up: function(queryInterface, Sequelize) {
     return queryInterface.createTable('Supplies', {
       id: {
+        type: Sequelize.STRING,
         allowNull: false,
-        autoIncrement: true,
+        autoIncrement: false,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        defaultValue: () => pushid()
       },
       name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: ''
       },
       quantity: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
       },
       gameId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: ''
       },
       createdAt: {
-        allowNull: false,
         type: Sequelize.DATE
+        allowNull: false,
+
       },
       updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE
+        allowNull: false
       }
     });
   },

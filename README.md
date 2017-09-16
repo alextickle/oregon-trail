@@ -51,7 +51,7 @@ nodemon app.js
 
 ```
 \c oregontrail
-DROP TABLE "PartyMembers", "Supplies", "Games" CASCADE; DELETE FROM "SequelizeMeta";
+DROP TABLE "Travelers", "Supplies", "Games" CASCADE; DELETE FROM "SequelizeMeta";
 ```
 
 Then quit postgres (\q) and run the two sequelize commands in the root directory:

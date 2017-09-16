@@ -1,14 +1,50 @@
 module.exports = function(sequelize, DataTypes) {
   const Game = sequelize.define('Game', {
-    recentlyBroken: DataTypes.STRING,
-    recentlyRecovered: DataTypes.STRING,
-    recentlyDeceased: DataTypes.STRING,
-    recentlyFellIll: DataTypes.STRING,
-    recentlyFound: DataTypes.STRING,
-    loseReason: DataTypes.STRING,
-    brokenDown: DataTypes.BOOLEAN,
-    daysSpent: DataTypes.INTEGER,
-    currentLocation: DataTypes.INTEGER
+    recentlyBroken: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
+    },
+    recentlyRecovered: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
+    },
+    recentlyDeceased: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
+    },
+    recentlyFellIll: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
+    },
+    recentlyFound: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
+    },
+    loseReason: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
+    },
+    brokenDown: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    daysSpent: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    currentLocation: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    }
   });
 
   Game.associate = function(models) {
@@ -16,9 +52,9 @@ module.exports = function(sequelize, DataTypes) {
       foreignKey: 'gameId',
       as: 'supplies'
     });
-    Game.hasMany(models.PartyMember, {
+    Game.hasMany(models.Traveler, {
       foreignKey: 'gameId',
-      as: 'partyMembers'
+      as: 'travelers'
     });
   };
 
@@ -28,6 +64,21 @@ module.exports = function(sequelize, DataTypes) {
     } else {
       return 1;
     }
+  };
+
+  Game.load = function(id) {
+    return Game.findById(id, {
+      include: [
+        {
+          model: Supply,
+          as: 'supplies'
+        },
+        {
+          model: Traveler,
+          as: 'travelers'
+        }
+      ]
+    });
   };
 
   Game.protoype.checkBrokeDown = function() {
@@ -63,7 +114,7 @@ module.exports = function(sequelize, DataTypes) {
 
   Game.prototype.headCount = function() {
     let headCount = 0;
-    this.partyMembers.forEach(function(member) {
+    this.travelers.forEach(function(member) {
       if (member.status !== 'dead') {
         headCount++;
       }
@@ -71,23 +122,23 @@ module.exports = function(sequelize, DataTypes) {
     return headCount;
   };
 
-  Game.prototype.diseaseRecovery = function(chance, partyMemberIndex) {
-    let i = partyMemberIndex;
+  Game.prototype.diseaseRecovery = function(chance, travelerIndex) {
+    let i = travelerIndex;
     let randomNum = Math.floor(Math.random() * chance) + 1;
     if (randomNum === 1) {
-      this.partyMembers[i].disease = 'none';
-      this.partyMembers[i].status = 'well';
-      this.recentlyRecovered = this.partyMembers[i].name;
+      this.travelers[i].disease = 'none';
+      this.travelers[i].status = 'well';
+      this.recentlyRecovered = this.travelers[i].name;
       return true;
     }
   };
 
-  Game.prototype.checkIfDead = function(chance, partyMemberIndex) {
-    let i = partyMemberIndex;
+  Game.prototype.checkIfDead = function(chance, travelerIndex) {
+    let i = travelerIndex;
     let randomNum = Math.floor(Math.random() * chance) + 1;
     if (randomNum === 1) {
-      this.partyMembers[i].status = 'dead';
-      this.recentlyDeceased = this.partyMembers[i].name;
+      this.travelers[i].status = 'dead';
+      this.recentlyDeceased = this.travelers[i].name;
       return true;
     }
     return false;
@@ -160,13 +211,13 @@ module.exports = function(sequelize, DataTypes) {
 
   Game.prototype.checkSick = function() {
     let diseases = this.getDiseases();
-    for (var i = 0; i < this.partyMembers.length; i++) {
-      if (this.partyMembers[i].status == 'well') {
+    for (var i = 0; i < this.travelers.length; i++) {
+      if (this.travelers[i].status == 'well') {
         for (var j = 0; j < diseases.length; j++) {
           if (this.takeChance(diseases[j].chance)) {
-            this.partyMembers[i].status = 'sick';
-            this.partyMembers[i].disease = diseases[j].name;
-            this.recentlyFellIll = this.partyMembers[i].name;
+            this.travelers[i].status = 'sick';
+            this.travelers[i].disease = diseases[j].name;
+            this.recentlyFellIll = this.travelers[i].name;
             return true;
           }
         }
@@ -176,9 +227,9 @@ module.exports = function(sequelize, DataTypes) {
   };
 
   Game.prototype.checkForDeaths = function() {
-    for (var i = 0; i < this.partyMembers.length; i++) {
-      if (this.partyMembers[i].status == 'sick') {
-        switch (this.partyMembers[i].disease) {
+    for (var i = 0; i < this.travelers.length; i++) {
+      if (this.travelers[i].status == 'sick') {
+        switch (this.travelers[i].disease) {
           case 'dysentery':
             if (this.checkIfDead(2, i)) {
               return true;
@@ -223,9 +274,9 @@ module.exports = function(sequelize, DataTypes) {
   };
 
   Game.prototype.checkRecovered = function() {
-    for (var i = 0; i < this.partyMembers.length; i++) {
-      if (this.partyMembers[i].status == 'sick') {
-        switch (this.partyMembers[i].disease) {
+    for (var i = 0; i < this.travelers.length; i++) {
+      if (this.travelers[i].status == 'sick') {
+        switch (this.travelers[i].disease) {
           case 'dysentery':
             if (this.diseaseRecovery(4, i)) {
               return true;
@@ -382,5 +433,24 @@ module.exports = function(sequelize, DataTypes) {
       msg: ''
     };
   };
+
+  Game.prototype.saveAll = function() {
+    let promises = [];
+    return this.save()
+      .then(function() {
+        this.supplies.forEach(supply => {
+          promises.push(supply.save());
+        });
+        return Promise.all(promises);
+      })
+      .then(function() {
+        promises = [];
+        this.travelers.forEach(traveler => {
+          promises.push(traveler.save());
+        });
+        return Promise.all(promises);
+      });
+  };
+
   return Game;
 };

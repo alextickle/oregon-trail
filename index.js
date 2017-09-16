@@ -1,6 +1,6 @@
 const Game = require('./models').Game;
 const Supply = require('./models').Supply;
-const PartyMember = require('./models').PartyMember;
+const Traveler = require('./models').Traveler;
 
 const express = require('express');
 const app = express();
@@ -13,370 +13,134 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.set('port', process.env.PORT || 5000);
 
-var randomizeSupplies = function() {
-  var quantities = [];
-  // wheels (3-6)
-  quantities.push(Math.floor(Math.random() * 4 + 3));
-  // axles (2-5)
-  quantities.push(Math.floor(Math.random() * 4 + 2));
-  // tongues (2-3)
-  quantities.push(Math.floor(Math.random() * 2 + 3));
-  // sets of clothes (6-12)
-  quantities.push(Math.floor(Math.random() * 7 + 6));
-  // oxen (2-5)
-  quantities.push(Math.floor(Math.random() * 4 + 2));
-  // food (200-299)
-  quantities.push(Math.floor(Math.random() * 100 + 200));
-  // bullets (120-214)
-  quantities.push(Math.floor(Math.random() * 75 + 120));
-  return quantities;
-};
+app.get('/', (request, response) => response.render('home'));
 
-var newGame = function(nameObj) {
-  var id;
-  var game;
-  var nameObj = nameObj;
-  return Game.create({
-    recentlyBroken: 'none',
-    recentlyRecovered: 'none',
-    recentlyDeceased: 'none',
-    recentlyFellIll: 'none',
-    recentlyFound: 'none',
-    loseReason: 'none',
-    brokenDown: false,
-    daysSpent: 0,
-    currentLocation: 0
-  })
-    .then(function(createdGame) {
-      id = createdGame.dataValues.id;
-      var membersToWrite = [];
-      for (var prop in nameObj) {
-        membersToWrite.push({
-          name: nameObj[prop],
-          status: 'well',
-          disease: 'none',
-          gameId: id
-        });
-      }
-      return PartyMember.bulkCreate(membersToWrite);
-    })
-    .then(function() {
-      var supplyNames = [
-        'wheels',
-        'axles',
-        'tongues',
-        'sets of clothing',
-        'oxen',
-        'food',
-        'bullets'
-      ];
-      var quantities = randomizeSupplies();
-      var suppliesToWrite = [];
-      for (var i = 0; i < 7; i++) {
-        suppliesToWrite.push({
-          name: supplyNames[i],
-          quantity: quantities[i],
-          gameId: id
-        });
-      }
-      return Supply.bulkCreate(suppliesToWrite);
-    })
-    .then(function() {
-      return load(id);
-    })
-    .catch(function() {
-      console.log('error creating new game');
-    });
-};
+app.get('/num-travelers', (request, response) =>
+  response.render('num-travelers')
+);
 
-var load = function(id) {
-  return loadGameFromDb(id).catch(function() {
-    console.log('load failed');
-  });
-};
-
-var loadGameFromDb = function(id) {
-  return Game.findById(id, {
-    include: [
-      {
-        model: Supply,
-        as: 'supplies'
-      },
-      {
-        model: PartyMember,
-        as: 'partyMembers'
-      }
-    ]
-  });
-};
-
-var save = function(instance) {
-  return Game.update(
-    {
-      recentlyBroken: instance.recentlyBroken,
-      recentlyRecovered: instance.recentlyRecovered,
-      recentlyDeceased: instance.recentlyDeceased,
-      recentlyFellIll: instance.recentlyFellIll,
-      recentlyFound: instance.recentlyFound,
-      loseReason: instance.loseReason,
-      brokenDown: instance.brokenDown,
-      daysSpent: instance.daysSpent,
-      currentLocation: instance.currentLocation
-    },
-    {
-      where: {
-        id: instance.id
-      }
-    }
-  )
-    .then(function() {
-      var supplies = instance.supplies;
-      var promise1 = Supply.update(
-        {
-          quantity: supplies[6].quantity
-        },
-        {
-          where: {
-            gameId: instance.id,
-            name: 'wheels'
-          }
-        }
-      );
-      var promise2 = Supply.update(
-        {
-          quantity: supplies[0].quantity
-        },
-        {
-          where: {
-            gameId: instance.id,
-            name: 'axles'
-          }
-        }
-      );
-      var promise3 = Supply.update(
-        {
-          quantity: supplies[5].quantity
-        },
-        {
-          where: {
-            gameId: instance.id,
-            name: 'tongues'
-          }
-        }
-      );
-      var promise4 = Supply.update(
-        {
-          quantity: supplies[4].quantity
-        },
-        {
-          where: {
-            gameId: instance.id,
-            name: 'sets of clothing'
-          }
-        }
-      );
-      var promise5 = Supply.update(
-        {
-          quantity: supplies[3].quantity
-        },
-        {
-          where: {
-            gameId: instance.id,
-            name: 'oxen'
-          }
-        }
-      );
-      var promise6 = Supply.update(
-        {
-          quantity: supplies[2].quantity
-        },
-        {
-          where: {
-            gameId: instance.id,
-            name: 'food'
-          }
-        }
-      );
-      var promise7 = Supply.update(
-        {
-          quantity: supplies[1].quantity
-        },
-        {
-          where: {
-            gameId: instance.id,
-            name: 'bullets'
-          }
-        }
-      );
-      var promises = [
-        promise1,
-        promise2,
-        promise3,
-        promise4,
-        promise5,
-        promise6,
-        promise7
-      ];
-      return Promise.all(promises);
-    })
-    .then(function() {
-      var partyMembers = instance.partyMembers;
-      var promises = [];
-      for (var i = 0; i < partyMembers.length; i++) {
-        promises.push(
-          PartyMember.update(
-            {
-              status: partyMembers[i].status,
-              disease: partyMembers[i].disease
-            },
-            {
-              where: {
-                gameId: instance.id,
-                name: partyMembers[i].name
-              }
-            }
-          )
-        );
-      }
-      return Promise.all(promises);
-    })
-    .then(function() {
-      return new Promise(function(resolve, reject) {
-        resolve(instance);
-      });
-    })
-    .catch(function() {
-      console.log('game did NOT save properly');
-    });
-};
-
-app.get('/', function(request, response) {
-  response.render('home');
-});
-
-app.get('/num-travelers', function(request, response) {
-  // user inputs number of travelers
-  response.render('num-travelers');
-});
-
-app.post('/party-members', function(request, response) {
-  // user inputs party members' names
+app.post('/travelers', (request, response) => {
+  // user inputs travelers' names
   let numberTravelers = request.body.quantity;
-  response.render('party-members', { members: numberTravelers });
+  response.render('travelers', { members: numberTravelers });
 });
 
-app.post('/outset', function(request, response) {
-  //Create new game and display supply and party member info
-  newGame(request.body).then(function(gameInstance) {
-    response.cookie('gameId', gameInstance.dataValues.id);
-    response.render('outset', {
-      game: gameInstance.dataValues,
-      supplies: gameInstance.supplies,
-      partyMembers: gameInstance.partyMembers
-    });
-  });
-});
-
-app.get('/location', function(request, response) {
-  //load the game and display current location
-  load(request.cookies.gameId).then(function(gameInstance) {
-    response.render('location', {
-      game: gameInstance.dataValues,
-      supplies: gameInstance.supplies,
-      partyMembers: gameInstance.partyMembers,
-      locations: gameInstance.getLocations(),
-      diseases: gameInstance.getDiseases()
-    });
-  });
-});
-
-app.get('/turn', function(request, response) {
-  load(request.cookies.gameId)
-    .then(function(gameInstance) {
-      result = gameInstance.takeTurn();
-      console.log('RESULT: ', result);
-      return save(gameInstance);
+app.post('/outset', (request, response) => {
+  //Create new game and display supply and traveler
+  let gameId;
+  Game.create()
+    .then(game => {
+      gameId = game.id;
+      Supply.initializeSupplies(gameId);
     })
-    .then(function(gameInstance) {
+    .then(() => Traveler.initializeTravelers(gameId))
+    .then(() => Game.load(gameId))
+    .then(game => {
+      response.cookie('gameId', game.dataValues.id);
+      response.render('outset', {
+        game: game.dataValues,
+        supplies: game.supplies,
+        travelers: game.travelers
+      });
+    });
+});
+
+app.get('/location', (request, response) =>
+  //load the game and display current location
+  Game.load(request.cookies.gameId).then(game =>
+    response.render('location', {
+      game: game.dataValues,
+      supplies: game.supplies,
+      travelers: game.travelers,
+      locations: game.getLocations(),
+      diseases: game.getDiseases()
+    });
+  );
+);
+
+app.get('/turn', (request, response) =>
+  Game.load(request.cookies.gameId)
+    .then(game => {
+      result = game.takeTurn();
+      return game.saveAll();
+    })
+    .then(game =>
       response.render(result.step, {
-        game: gameInstance.dataValues,
-        supplies: gameInstance.supplies,
-        partyMembers: gameInstance.partyMembers,
-        locations: gameInstance.getLocations(),
-        diseases: gameInstance.getDiseases(),
+        game: game.dataValues,
+        supplies: game.supplies,
+        travelers: game.travelers,
+        locations: game.getLocations(),
+        diseases: game.getDiseases(),
         message: result.message
       });
-    })
-    .catch(function() {
-      console.log('turn failed (called from route)');
-    });
-});
+    )
+    .catch(() => console.log('turn failed'));
+);
 
-app.get('/look-around', function(request, response) {
-  load(request.cookies.gameId)
-    .then(function(gameInstance) {
-      gameInstance.lookAround();
-      return save(gameInstance);
+app.get('/look-around', (request, response) =>
+  Game.load(request.cookies.gameId)
+    .then(game => {
+      game.lookAround();
+      return Game.saveAll();
     })
-    .then(function(gameInstance) {
+    .then(game =>
       response.render('look-around', {
-        game: gameInstance.dataValues,
-        supplies: gameInstance.supplies,
-        partyMembers: gameInstance.partyMembers,
-        locations: gameInstance.getLocations()
-      });
-    });
-});
+        game: game.dataValues,
+        supplies: game.supplies,
+        travelers: game.travelers,
+        locations: game.getLocations()
+      })
+    );
+);
 
-app.get('/hunt', function(request, response) {
+app.get('/hunt', (request, response) =>
   response.render('hunt', {
     layout: false,
     gameId: request.cookies.gameId
-  });
-});
+  })
+);
 
-app.post('/post-hunt/:food/:bullets', function(request, response) {
-  var food = request.params.food;
-  var bullets = request.params.bullets;
-  load(request.cookies.gameId)
-    .then(function(gameInstance) {
-      gameInstance.supplies.sort(Game.compare);
-      gameInstance.supplies[2].quantity = (parseInt(food) +
-        parseInt(gameInstance.supplies[2].quantity)).toString();
-      gameInstance.supplies[1].quantity = (parseInt(
-        gameInstance.supplies[1].quantity
+app.post('/post-hunt/:food/:bullets', (request, response) => {
+  const food = request.params.food;
+  const bullets = request.params.bullets;
+  Game.load(request.cookies.gameId)
+    .then(game => {
+      game.supplies.sort(Game.compare);
+      game.supplies[2].quantity = (parseInt(food) +
+        parseInt(game.supplies[2].quantity)).toString();
+      game.supplies[1].quantity = (parseInt(
+        game.supplies[1].quantity
       ) - parseInt(bullets)).toString();
-      return save(gameInstance);
+      return game.saveAll();
     })
-    .then(function(gameInstance) {
+    .then(game =>
       response.render('post-hunt', {
         food: food,
         bullets: bullets,
-        game: gameInstance.dataValues,
-        supplies: gameInstance.supplies,
-        partyMembers: gameInstance.partyMembers,
-        locations: gameInstance.getLocations(),
-        diseases: gameInstance.getDiseases()
+        game: game.dataValues,
+        supplies: game.supplies,
+        travelers: game.travelers,
+        locations: game.getLocations(),
+        diseases: game.getDiseases()
       });
-    });
+    );
 });
 
-app.get('/continue', function(request, response) {
+app.get('/continue', (request, response) => {
   if (request.cookies.gameId) {
-    load(request.cookies.gameId).then(function(gameInstance) {
+    Game.load(request.cookies.gameId).then(game =>
       response.render('location', {
-        game: gameInstance.dataValues,
-        supplies: gameInstance.supplies,
-        partyMembers: gameInstance.partyMembers,
-        locations: gameInstance.getLocations(),
-        diseases: gameInstance.getDiseases()
-      });
-    });
+        game: game.dataValues,
+        supplies: game.supplies,
+        travelers: game.travelers,
+        locations: game.getLocations(),
+        diseases: game.getDiseases()
+      })
+    )
   } else {
     response.render('home');
   }
 });
 
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
-});
+app.listen(app.get('port'), () =>
+  console.log('Node app is running on port', app.get('port')));
