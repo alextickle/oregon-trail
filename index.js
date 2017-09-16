@@ -19,14 +19,10 @@ app.get('/num-travelers', (request, response) =>
   response.render('num-travelers')
 );
 
-app.post('/travelers', (request, response) => {
-  // user inputs travelers' names
-  let numberTravelers = request.body.quantity;
-  response.render('travelers', { members: numberTravelers });
-});
+app.post('/travelers', (request, response) =>
+  response.render('travelers', { members: request.body.quantity }));
 
 app.post('/outset', (request, response) => {
-  //Create new game and display supply and traveler
   let gameId;
   Game.create()
     .then(game => {
@@ -101,17 +97,15 @@ app.get('/hunt', (request, response) =>
     gameId: request.cookies.gameId
   }))
 
-app.post('/post-hunt/:food/:bullets', (request, response) => {
-  const food = request.params.food;
-  const bullets = request.params.bullets;
+app.post('/post-hunt/:food/:bullets', (request, response) =>
   Game.load(request.cookies.gameId)
     .then(game => {
       game.supplies.sort(Game.compare);
-      game.supplies[2].quantity = (parseInt(food) +
+      game.supplies[2].quantity = (parseInt(request.params.food) +
         parseInt(game.supplies[2].quantity)).toString();
       game.supplies[1].quantity = (parseInt(
         game.supplies[1].quantity
-      ) - parseInt(bullets)).toString();
+      ) - parseInt(request.params.bullets)).toString();
       return game.saveAll();
     })
     .then(game =>
@@ -126,7 +120,7 @@ app.post('/post-hunt/:food/:bullets', (request, response) => {
       });
     )
     .catch(error => console.log('error: ', error))
-});
+);
 
 app.get('/continue', (request, response) => {
   if (request.cookies.gameId) {
