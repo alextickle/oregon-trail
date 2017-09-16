@@ -42,11 +42,11 @@ app.post('/outset', (request, response) => {
         supplies: game.supplies,
         travelers: game.travelers
       });
-    });
+    })
+    .catch(error => console.log('error: ', error))
 });
 
 app.get('/location', (request, response) =>
-  //load the game and display current location
   Game.load(request.cookies.gameId).then(game =>
     response.render('location', {
       game: game.dataValues,
@@ -55,7 +55,8 @@ app.get('/location', (request, response) =>
       locations: game.getLocations(),
       diseases: game.getDiseases()
     });
-  );
+  )
+  .catch(error => console.log('error: ', error))
 );
 
 app.get('/turn', (request, response) =>
@@ -74,7 +75,7 @@ app.get('/turn', (request, response) =>
         message: result.message
       });
     )
-    .catch(() => console.log('turn failed'));
+    .catch(error => console.log('error: ', error))
 );
 
 app.get('/look-around', (request, response) =>
@@ -90,15 +91,15 @@ app.get('/look-around', (request, response) =>
         travelers: game.travelers,
         locations: game.getLocations()
       })
-    );
+    )
+    .catch(error => console.log('error: ', error));
 );
 
 app.get('/hunt', (request, response) =>
   response.render('hunt', {
     layout: false,
     gameId: request.cookies.gameId
-  })
-);
+  }))
 
 app.post('/post-hunt/:food/:bullets', (request, response) => {
   const food = request.params.food;
@@ -123,7 +124,8 @@ app.post('/post-hunt/:food/:bullets', (request, response) => {
         locations: game.getLocations(),
         diseases: game.getDiseases()
       });
-    );
+    )
+    .catch(error => console.log('error: ', error))
 });
 
 app.get('/continue', (request, response) => {
