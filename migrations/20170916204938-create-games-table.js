@@ -30,6 +30,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      step: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      message: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       brokenDown: {
         type: Sequelize.BOOLEAN,
         allowNull: false

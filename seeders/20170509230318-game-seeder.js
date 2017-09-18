@@ -11,6 +11,8 @@ module.exports = {
           sick: '',
           found: '',
           loseReason: '',
+          step: '',
+          message: '',
           brokenDown: false,
           days: 0,
           currentLocation: 0,

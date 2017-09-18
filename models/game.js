@@ -38,6 +38,16 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: ''
     },
+    step: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
+    },
+    message: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: ''
+    },
     brokenDown: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -121,18 +131,19 @@ module.exports = function(sequelize, DataTypes) {
   Game.takeChance = chance => Math.floor(Math.random() * chance) === 0;
 
   Game.prototype.checkForBreakDown = function() {
+    let breakDown = false;
     const supplies = ['axles', 'oxen', 'tongues', 'wheels'];
     supplies.forEach(supply => {
-      if (this.takeChance(10)) {
+      if (Game.takeChance(10)) {
         this[supply] -= 1;
         if (this[supply] < 1) {
           this.brokenDown = true;
         }
         this.broken = supply;
-        return true;
+        breakDown = true;
       }
     });
-    return false;
+    return breakDown;
   };
 
   Game.prototype.initializeSupplies = function() {
@@ -153,19 +164,20 @@ module.exports = function(sequelize, DataTypes) {
   };
 
   Game.prototype.checkLose = function() {
+    let lose = false;
     if (this.headCount() == 0) {
       this.loseReason = 'Your entire party is dead!';
-      return true;
+      lose = true;
     }
     if (this.food <= 0) {
       this.loseReason = 'You ran out of food!';
-      return true;
+      lose = true;
     }
     if (this.brokenDown) {
       this.loseReason = 'Your wagon has broken down!!';
-      return true;
+      lose = true;
     }
-    return false;
+    return lose;
   };
 
   Game.prototype.headCount = function() {
@@ -226,39 +238,42 @@ module.exports = function(sequelize, DataTypes) {
   };
 
   Game.prototype.checkForSick = function() {
-    travelers.forEach(traveler => {
+    let sick = false;
+    this.travelers.forEach(traveler => {
       if (traveler.status == 'well') {
         if (traveler.checkSick()) {
           this.sick = traveler.name;
-          return true;
+          sick = true;
         }
       }
     });
-    return false;
+    return sick;
   };
 
   Game.prototype.checkForDeaths = function() {
+    let death = false;
     this.travelers.forEach(traveler => {
       if (traveler.status === 'sick') {
         if (traveler.checkIfDead()) {
           this.dead = traveler.name;
         }
-        return true;
+        death = true;
       }
     });
-    return false;
+    return death;
   };
 
   Game.prototype.checkForRecovered = function() {
+    let recovered = false;
     this.travelers.forEach(traveler => {
       if (traveler.status === 'sick') {
         if (traveler.checkIfRecovered()) {
           this.recovered = traveler.name;
-          return true;
+          recovered = true;
         }
       }
     });
-    return false;
+    return recovered;
   };
 
   Game.prototype.lookAround = function() {
@@ -305,16 +320,12 @@ module.exports = function(sequelize, DataTypes) {
 
   Game.prototype.takeTurn = function() {
     if (this.getCurrentLocation().name === 'The Dalles') {
-      return {
-        step: 'game-won',
-        message: ''
-      };
+      this.step = 'game-won';
+      return;
     }
     if (this.checkLose()) {
-      return {
-        step: 'game-lost',
-        message: ''
-      };
+      this.step = 'game-lost';
+      return;
     }
     if (this.checkForDeaths()) {
       this.days += 5;
@@ -322,16 +333,12 @@ module.exports = function(sequelize, DataTypes) {
       if (this.food < 0) {
         this.food = 0;
       }
-      return {
-        step: 'dead',
-        message: ''
-      };
+      this.step = 'dead';
+      return;
     }
     if (this.checkForRecovered()) {
-      return {
-        step: 'recovered',
-        message: ''
-      };
+      this.step = 'recovered';
+      return;
     }
     if (this.checkForSick()) {
       this.days += 2;
@@ -339,10 +346,8 @@ module.exports = function(sequelize, DataTypes) {
       if (this.food < 0) {
         this.food = 0;
       }
-      return {
-        step: 'sick',
-        message: ''
-      };
+      this.step = 'sick';
+      return;
     }
     if (this.checkForBreakDown()) {
       let msg;
@@ -362,10 +367,9 @@ module.exports = function(sequelize, DataTypes) {
         default:
           break;
       }
-      return {
-        step: 'broke',
-        message: msg
-      };
+      this.step = 'broke';
+      this.message = msg;
+      return;
     }
     this.currentLocation++;
     this.food -= 5 * this.headCount();
@@ -373,21 +377,22 @@ module.exports = function(sequelize, DataTypes) {
       this.food = 0;
     }
     this.days += 10;
-    return {
-      step: 'location',
-      msg: ''
-    };
+    this.step = 'location';
   };
 
   Game.prototype.saveAll = function() {
+    let id = this.id;
     let promises = [];
-    return this.save().then(function() {
-      promises = [];
-      this.travelers.forEach(traveler => {
-        promises.push(traveler.save());
-      });
-      return Promise.all(promises);
-    });
+    let travelers = this.travelers;
+    return this.save()
+      .then(() => {
+        promises = [];
+        travelers.forEach(traveler => {
+          promises.push(traveler.save());
+        });
+        return Promise.all(promises);
+      })
+      .then(() => Game.load(id));
   };
 
   return Game;

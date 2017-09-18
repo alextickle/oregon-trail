@@ -31,11 +31,14 @@ app.set('port', process.env.PORT || 5000);
 
 app.get('/', (request, response) => response.render('home'));
 
-// app.get('/test', (request, response) => {
-//   Game.load('-KtximVGkLwYi9IuYYWU').then(game => {
-//     response.render('home');
-//   });
-// });
+app.get('/test', (request, response) => {
+  Game.load('-KtximVGkLwYi9IuYYWU').then(game => {
+    for (let i = 0; i < 5; i++) {
+      console.log(game.checkForSick());
+    }
+    response.render('home');
+  });
+});
 
 app.get('/num-travelers', (request, response) =>
   response.render('num-travelers')
@@ -72,32 +75,39 @@ app.post('/outset', (request, response) => {
 
 app.get('/location', (request, response) =>
   Game.load(request.cookies.gameId)
-    .then(game => {
+    .then(game =>
       response.render('location', {
-        game: game.dataValues,
+        game: game,
         travelers: game.travelers,
         location: game.getCurrentLocation()
-      });
-    })
-    .catch(error => console.log('error: ', error))
-);
-
-app.get('/turn', (request, response) =>
-  Game.load(request.cookies.gameId)
-    .then(game => {
-      result = game.takeTurn();
-      return game.saveAll();
-    })
-    .then(game =>
-      response.render(result.step, {
-        game: game.dataValues,
-        travelers: game.travelers,
-        location: game.getCurrentLocation(),
-        message: result.message
       })
     )
     .catch(error => console.log('error: ', error))
 );
+
+app.get('/turn', (request, response) => {
+  console.log('');
+  console.log('------------------------BEGIN TURN----------------------------');
+  let result;
+  Game.load(request.cookies.gameId)
+    .then(game => {
+      game.takeTurn();
+      return game.saveAll();
+    })
+    .then(game => {
+      console.log(
+        '------------------------END TURN----------------------------'
+      );
+      console.log('');
+      response.render(game.step, {
+        game: game,
+        travelers: game.travelers,
+        location: game.getCurrentLocation(),
+        message: game.message
+      });
+    })
+    .catch(error => console.log('error: ', error));
+});
 
 app.get('/look-around', (request, response) =>
   Game.load(request.cookies.gameId)
@@ -107,7 +117,7 @@ app.get('/look-around', (request, response) =>
     })
     .then(game =>
       response.render('look-around', {
-        game: game.dataValues,
+        game: game,
         travelers: game.travelers,
         location: game.getCurrentLocation()
       })
@@ -143,7 +153,7 @@ app.get('/continue', (request, response) => {
   if (request.cookies.gameId) {
     Game.load(request.cookies.gameId).then(game =>
       response.render('location', {
-        game: game.dataValues,
+        game: game,
         travelers: game.travelers,
         location: game.getCurrentLocation()
       })
