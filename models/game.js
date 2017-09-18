@@ -1,5 +1,4 @@
 const pushid = require('pushid');
-const Traveler = require('../models').Traveler;
 
 module.exports = function(sequelize, DataTypes) {
   const Game = sequelize.define('Game', {
@@ -98,15 +97,16 @@ module.exports = function(sequelize, DataTypes) {
     });
   };
 
-  Game.load = id =>
-    Game.findById(id, {
+  Game.load = id => {
+    return Game.findById(id, {
       include: [
         {
-          model: Traveler,
+          model: sequelize.models.Traveler,
           as: 'travelers'
         }
       ]
     });
+  };
 
   Game.listSupplies = () => [
     'axles',

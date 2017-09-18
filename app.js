@@ -26,14 +26,14 @@ app.use(cookieParser());
 app.set('port', process.env.PORT || 5000);
 
 // routes
-app.get('/test', (request, response) => {
-  Game.load('-KtximVGkLwYi9IuYYWU').then(game => {
-    console.log(game);
-    response.render('home');
-  });
-});
 
 app.get('/', (request, response) => response.render('home'));
+
+// app.get('/test', (request, response) => {
+//   Game.load('-KtximVGkLwYi9IuYYWU').then(game => {
+//     response.render('home');
+//   });
+// });
 
 app.get('/num-travelers', (request, response) =>
   response.render('num-travelers')
@@ -57,7 +57,6 @@ app.post('/outset', (request, response) => {
     })
     .then(() => Game.load(gameId))
     .then(game => {
-      console.log('GAME: ', game);
       response.cookie('gameId', game.dataValues.id);
       response.render('outset', {
         game: game.dataValues,
