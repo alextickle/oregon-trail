@@ -1,28 +1,22 @@
-const pushid = require('pushid');
-
 module.exports = {
   up: function(queryInterface, Sequelize) {
     return queryInterface.createTable('Travelers', {
       id: {
         type: Sequelize.STRING,
         allowNull: false,
-        primaryKey: true,
-        defaultValue: () => pushid()
+        primaryKey: true
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: ''
+        allowNull: false
       },
       status: {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: ''
+        allowNull: false
       },
       disease: {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: ''
+        allowNull: false
       },
       gameId: {
         type: Sequelize.STRING,

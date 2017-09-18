@@ -1,5 +1,14 @@
+const pushid = require('pushid');
+const Traveler = require('../models').Traveler;
+
 module.exports = function(sequelize, DataTypes) {
   const Game = sequelize.define('Game', {
+    id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: () => pushid()
+    },
     broken: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -55,7 +64,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 0
     },
-    clothing: {
+    clothes: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
@@ -102,7 +111,7 @@ module.exports = function(sequelize, DataTypes) {
   Game.listSupplies = () => [
     'axles',
     'bullets',
-    'clothing',
+    'clothes',
     'food',
     'oxen',
     'tongues',

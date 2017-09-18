@@ -4,12 +4,13 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const handlebars = require('express-handlebars');
+const handlebars = require('handlebars');
+const expressHandlebars = require('express-handlebars');
 
 // use handlebars templating
 app.engine(
   'hbs',
-  handlebars({
+  expressHandlebars({
     extname: '.hbs',
     defaultLayout: 'layout',
     layoutsDir: __dirname + '/views/',
@@ -17,6 +18,7 @@ app.engine(
   })
 );
 app.set('view engine', 'hbs');
+handlebars.registerHelper('inc', (value, options) => parseInt(value) + 1);
 
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -40,10 +42,11 @@ app.post('/travelers', (request, response) => {
 
 app.post('/outset', (request, response) => {
   let gameId;
+  let names = request.body;
   Game.create()
     .then(game => {
       gameId = game.id;
-      Traveler.initializeTravelers(gameId);
+      Traveler.initializeTravelers(names, game.id);
     })
     .then(() => Game.load(gameId))
     .then(game => {

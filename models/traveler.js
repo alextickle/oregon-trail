@@ -1,5 +1,13 @@
+const pushid = require('pushid');
+
 module.exports = function(sequelize, DataTypes) {
   const Traveler = sequelize.define('Traveler', {
+    id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: () => pushid()
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
