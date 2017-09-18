@@ -135,6 +135,23 @@ module.exports = function(sequelize, DataTypes) {
     return false;
   };
 
+  Game.prototype.initializeSupplies = function() {
+    // wheels (3-6)
+    this.wheels = Math.floor(Math.random() * 4 + 3);
+    // axles (2-5)
+    this.axles = Math.floor(Math.random() * 4 + 2);
+    // tongues (2-3)
+    this.tongues = Math.floor(Math.random() * 2 + 3);
+    // sets of clothes (6-12)
+    this.clothes = Math.floor(Math.random() * 7 + 6);
+    // oxen (2-5)
+    this.oxen = Math.floor(Math.random() * 4 + 2);
+    // food (200-299)
+    this.food = Math.floor(Math.random() * 100 + 200);
+    // bullets (120-214)
+    this.bullets = Math.floor(Math.random() * 75 + 120);
+  };
+
   Game.prototype.checkLose = function() {
     if (this.headCount() == 0) {
       this.loseReason = 'Your entire party is dead!';

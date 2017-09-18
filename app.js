@@ -55,12 +55,13 @@ app.post('/outset', (request, response) => {
   Game.create()
     .then(game => {
       gameId = game.id;
-      return Traveler.initializeTravelers(names, game.id);
+      game.initializeSupplies();
+      return game.save();
     })
+    .then(() => Traveler.initializeTravelers(names, gameId))
     .then(() => Game.load(gameId))
     .then(game => {
-      console.log('GAME: ', game);
-      response.cookie('gameId', game.id);
+      response.cookie('gameId', gameId);
       response.render('outset', {
         game: game,
         travelers: game.travelers
