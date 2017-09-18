@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  const traveler = sequelize.define('Traveler', {
+  const Traveler = sequelize.define('Traveler', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,

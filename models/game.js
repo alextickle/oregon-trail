@@ -64,7 +64,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
-    }
+    },
     oxen: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -111,7 +111,7 @@ module.exports = function(sequelize, DataTypes) {
 
   Game.takeChance = chance => Math.floor(Math.random() * chance) === 0;
 
-  Game.protoype.checkForBreakDown = function() {
+  Game.prototype.checkForBreakDown = function() {
     const supplies = ['axles', 'oxen', 'tongues', 'wheels'];
     supplies.forEach(supply => {
       if (this.takeChance(10)) {
@@ -126,7 +126,7 @@ module.exports = function(sequelize, DataTypes) {
     return false;
   };
 
-  Game.protoype.checkLose = function() {
+  Game.prototype.checkLose = function() {
     if (this.headCount() == 0) {
       this.loseReason = 'Your entire party is dead!';
       return true;
