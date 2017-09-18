@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: ''
     },
-    ill: {
+    sick: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: ''
@@ -75,7 +75,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 0
     },
-    food: {}
+    food: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    }
   });
 
   Game.associate = models => {
@@ -83,14 +87,6 @@ module.exports = function(sequelize, DataTypes) {
       foreignKey: 'gameId',
       as: 'travelers'
     });
-  };
-
-  Game.compare = (a, b) => {
-    if (a.name[0] < b.name[0]) {
-      return -1;
-    } else {
-      return 1;
-    }
   };
 
   Game.load = id =>
@@ -103,20 +99,30 @@ module.exports = function(sequelize, DataTypes) {
       ]
     });
 
-  Game.listSupplies = ['oxen'];
+  Game.listSupplies = () => [
+    'axles',
+    'bullets',
+    'clothing',
+    'food',
+    'oxen',
+    'tongues',
+    'wheels'
+  ];
+
+  Game.takeChance = chance => Math.floor(Math.random() * chance) === 0;
 
   Game.protoype.checkBrokeDown = function() {
-    var indices = [0, 3, 5, 6];
-    for (var i = 0; i < indices.length; i++) {
+    const supplies = ['axles', 'oxen', 'tongues', 'wheels'];
+    supplies.forEach(supply => {
       if (this.takeChance(10)) {
-        this.supplies[indices[i]].quantity -= 1;
-        if (this.supplies[indices[i]].quantity < 1) {
+        this[supply] -= 1;
+        if (this[supply] < 1) {
           this.brokenDown = true;
         }
-        this.recentlyBroken = this.supplies[indices[i]].name;
+        this.broken = supply;
         return true;
       }
-    }
+    });
     return false;
   };
 
@@ -125,7 +131,7 @@ module.exports = function(sequelize, DataTypes) {
       this.loseReason = 'Your entire party is dead!';
       return true;
     }
-    if (this.supplies[2].quantity <= 0) {
+    if (this.food <= 0) {
       this.loseReason = 'You ran out of food!';
       return true;
     }
@@ -138,7 +144,7 @@ module.exports = function(sequelize, DataTypes) {
 
   Game.prototype.headCount = function() {
     let headCount = 0;
-    this.travelers.forEach(function(member) {
+    this.travelers.forEach(member => {
       if (member.status !== 'dead') {
         headCount++;
       }
@@ -146,37 +152,9 @@ module.exports = function(sequelize, DataTypes) {
     return headCount;
   };
 
-  Game.prototype.diseaseRecovery = function(chance, travelerIndex) {
-    let i = travelerIndex;
-    let randomNum = Math.floor(Math.random() * chance) + 1;
-    if (randomNum === 1) {
-      this.travelers[i].disease = 'none';
-      this.travelers[i].status = 'well';
-      this.recentlyRecovered = this.travelers[i].name;
-      return true;
-    }
-  };
+  Game.takeChance = chance => Math.floor(Math.random() * chance) === 0;
 
-  Game.prototype.checkIfDead = function(chance, travelerIndex) {
-    let i = travelerIndex;
-    let randomNum = Math.floor(Math.random() * chance) + 1;
-    if (randomNum === 1) {
-      this.travelers[i].status = 'dead';
-      this.recentlyDeceased = this.travelers[i].name;
-      return true;
-    }
-    return false;
-  };
-
-  Game.prototype.takeChance = function(chance) {
-    let randomNum = Math.floor(Math.random() * chance) + 1;
-    if (randomNum === 1) {
-      return true;
-    }
-    return false;
-  };
-
-  Game.prototype.getCurrentLocation = function() {
+  Game.prototype.getCurrentLocation = () => {
     const locations = [
       {
         name: 'Chimney Rock',
@@ -222,121 +200,37 @@ module.exports = function(sequelize, DataTypes) {
     return locations[this.currentLocation];
   };
 
-  Game.prototype.getDiseases = function() {
-    return [
-      { name: 'cholera', chance: 30 },
-      { name: 'dysentery', chance: 20 },
-      { name: 'broken leg', chance: 80 },
-      { name: 'broken arm', chance: 60 },
-      { name: 'bitten by snake', chance: 100 },
-      { name: 'influenza', chance: 20 },
-      { name: 'spontaneous combustion', chance: 5000 }
-    ];
-  };
-
-  Game.prototype.checkSick = function() {
-    let diseases = this.getDiseases();
-    for (var i = 0; i < this.travelers.length; i++) {
-      if (this.travelers[i].status == 'well') {
-        for (var j = 0; j < diseases.length; j++) {
-          if (this.takeChance(diseases[j].chance)) {
-            this.travelers[i].status = 'sick';
-            this.travelers[i].disease = diseases[j].name;
-            this.recentlyFellIll = this.travelers[i].name;
-            return true;
-          }
+  Game.prototype.checkForSick = function() {
+    travelers.forEach(traveler => {
+      if (traveler.status == 'well') {
+        if (traveler.checkSick()) {
+          this.sick = traveler.name;
+          return true;
         }
       }
-    }
+    });
     return false;
   };
 
   Game.prototype.checkForDeaths = function() {
-    for (var i = 0; i < this.travelers.length; i++) {
-      if (this.travelers[i].status == 'sick') {
-        switch (this.travelers[i].disease) {
-          case 'dysentery':
-            if (this.checkIfDead(2, i)) {
-              return true;
-            }
-            break;
-          case 'cholera':
-            if (this.checkIfDead(2, i)) {
-              return true;
-            }
-            break;
-          case 'broken leg':
-            if (this.checkIfDead(20, i)) {
-              return true;
-            }
-            break;
-          case 'broken arm':
-            if (this.checkIfDead(100, i)) {
-              return true;
-            }
-            break;
-          case 'bitten by snake':
-            if (this.checkIfDead(3, i)) {
-              return true;
-            }
-            break;
-          case 'influenza':
-            if (this.checkIfDead(50, i)) {
-              return true;
-            }
-            break;
-          case 'spontaneous combustion':
-            if (this.checkIfDead(1, i)) {
-              return true;
-            }
-            break;
-          default:
-            break;
-        }
+    this.travelers.forEach(traveler => {
+      if (traveler.checkIfDead()) {
+        this.dead = traveler.name;
       }
-    }
+      return true;
+    });
     return false;
   };
 
-  Game.prototype.checkRecovered = function() {
-    for (var i = 0; i < this.travelers.length; i++) {
-      if (this.travelers[i].status == 'sick') {
-        switch (this.travelers[i].disease) {
-          case 'dysentery':
-            if (this.diseaseRecovery(4, i)) {
-              return true;
-            }
-            break;
-          case 'cholera':
-            if (this.diseaseRecovery(20, i)) {
-              return true;
-            }
-            break;
-          case 'broken leg':
-            if (this.diseaseRecovery(5, i)) {
-              return true;
-            }
-            break;
-          case 'broken arm':
-            if (this.diseaseRecovery(3, i)) {
-              return true;
-            }
-            break;
-          case 'bitten by snake':
-            if (this.diseaseRecovery(10, i)) {
-              return true;
-            }
-            break;
-          case 'influenza':
-            if (this.diseaseRecovery(3, i)) {
-              return true;
-            }
-            break;
-          default:
-            break;
+  Game.prototype.checkForRecovered = function() {
+    this.travelers.forEach(traveler => {
+      if (traveler.status === 'sick') {
+        if (traveler.checkIfRecovered()) {
+          this.recovered = traveler.name;
+          return true;
         }
       }
-    }
+    });
     return false;
   };
 
