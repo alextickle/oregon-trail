@@ -29,16 +29,9 @@ app.set('port', process.env.PORT || 5000);
 
 // routes
 
-app.get('/', (request, response) => response.render('home'));
-
-app.get('/test', (request, response) => {
-  Game.load('-KtximVGkLwYi9IuYYWU').then(game => {
-    for (let i = 0; i < 5; i++) {
-      console.log(game.checkForSick());
-    }
-    response.render('home');
-  });
-});
+app.get('/', (request, response) =>
+  response.render('home', { hasGame: request.cookies.gameId ? true : false })
+);
 
 app.get('/num-travelers', (request, response) =>
   response.render('num-travelers')
@@ -155,7 +148,7 @@ app.get('/continue', (request, response) => {
       })
     );
   } else {
-    response.render('home');
+    response.render('home', { continue: false });
   }
 });
 
