@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: ''
     },
-    deceased: {
+    dead: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: ''

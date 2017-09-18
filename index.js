@@ -1,13 +1,12 @@
 const Game = require('./models').Game;
-const Supply = require('./models').Supply;
 const Traveler = require('./models').Traveler;
-
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const hbs = require('express-handlebars');
 
+// use handlebars templating
 app.engine('hbs'. handlebars({extname: 'hbs', defaultLayout: 'layout', layoutsDir: __dirname + '/views/'}))
 app.set('view engine', 'hbs');
 hbs.registerPartial('game-status', '{{ game-status }}')
@@ -18,6 +17,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.set('port', process.env.PORT || 5000);
 
+// routes
 app.get('/', (request, response) => response.render('home'));
 
 app.get('/num-travelers', (request, response) =>
@@ -36,15 +36,13 @@ app.post('/outset', (request, response) => {
   Game.create()
     .then(game => {
       gameId = game.id;
-      Supply.initializeSupplies(gameId);
+      Traveler.initializeTravelers(gameId))
     })
-    .then(() => Traveler.initializeTravelers(gameId))
     .then(() => Game.load(gameId))
     .then(game => {
       response.cookie('gameId', game.dataValues.id);
       response.render('outset', {
         game: game.dataValues,
-        supplies: game.supplies,
         travelers: game.travelers
       });
     })
@@ -55,7 +53,6 @@ app.get('/location', (request, response) =>
   Game.load(request.cookies.gameId).then(game =>
     response.render('location', {
       game: game.dataValues,
-      supplies: game.supplies,
       travelers: game.travelers
     });
   )
@@ -71,9 +68,8 @@ app.get('/turn', (request, response) =>
     .then(game =>
       response.render(result.step, {
         game: game.dataValues,
-        supplies: game.supplies,
         travelers: game.travelers,
-        imgSrc: game.getLocations()[game.currentLocation].source,
+        location: game.getCurrentLocation(),
         message: result.message
       });
     )
@@ -89,9 +85,8 @@ app.get('/look-around', (request, response) =>
     .then(game =>
       response.render('look-around', {
         game: game.dataValues,
-        supplies: game.supplies,
         travelers: game.travelers,
-        imgSrc: game.getLocations()[game.currentLocation].source
+        location: game.getCurrentLocation(),
       })
     )
     .catch(error => console.log('error: ', error));
@@ -106,9 +101,8 @@ app.get('/hunt', (request, response) =>
 app.post('/post-hunt/:food/:bullets', (request, response) =>
   Game.load(request.cookies.gameId)
     .then(game => {
-      game.supplies.sort(Game.compare);
-      game.supplies[2].quantity += parseInt(request.params.food);
-      game.supplies[1].quantity -= parseInt(request.params.bullets);
+      game.food += parseInt(request.params.food);
+      game.bullets -= parseInt(request.params.bullets);
       return game.saveAll();
     })
     .then(game =>
@@ -126,7 +120,6 @@ app.get('/continue', (request, response) => {
     Game.load(request.cookies.gameId).then(game =>
       response.render('location', {
         game: game.dataValues,
-        supplies: game.supplies,
         travelers: game.travelers,
         location: game.getCurrentLocation()
       })
