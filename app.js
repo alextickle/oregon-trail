@@ -26,6 +26,13 @@ app.use(cookieParser());
 app.set('port', process.env.PORT || 5000);
 
 // routes
+app.get('/test', (request, response) => {
+  Game.load('-KtximVGkLwYi9IuYYWU').then(game => {
+    console.log(game);
+    response.render('home');
+  });
+});
+
 app.get('/', (request, response) => response.render('home'));
 
 app.get('/num-travelers', (request, response) =>
@@ -46,10 +53,11 @@ app.post('/outset', (request, response) => {
   Game.create()
     .then(game => {
       gameId = game.id;
-      Traveler.initializeTravelers(names, game.id);
+      return Traveler.initializeTravelers(names, game.id);
     })
     .then(() => Game.load(gameId))
     .then(game => {
+      console.log('GAME: ', game);
       response.cookie('gameId', game.dataValues.id);
       response.render('outset', {
         game: game.dataValues,
