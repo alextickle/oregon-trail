@@ -16,7 +16,7 @@ module.exports = {
           currentLocation: 0,
           axles: 0,
           bullets: 0,
-          clothing: 0,
+          clothes: 0,
           food: 0,
           oxen: 0,
           tongues: 0,

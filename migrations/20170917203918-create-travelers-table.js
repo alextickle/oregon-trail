@@ -4,7 +4,7 @@ module.exports = {
   up: function(queryInterface, Sequelize) {
     return queryInterface.createTable('Travelers', {
       id: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
         allowNull: false,
         primaryKey: true,
         defaultValue: () => pushid()
@@ -29,12 +29,12 @@ module.exports = {
         allowNull: false
       },
       createdAt: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
         allowNull: false
       },
       updatedAt: {
-        type: Sequelize.DATE
-        allowNull: falses
+        type: Sequelize.DATE,
+        allowNull: false
       }
     });
   },

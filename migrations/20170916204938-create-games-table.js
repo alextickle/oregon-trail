@@ -4,7 +4,7 @@ module.exports = {
   up: function(queryInterface, Sequelize) {
     return queryInterface.createTable('Games', {
       id: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
         allowNull: false,
         primaryKey: true,
         defaultValue: () => pushid()
@@ -90,11 +90,11 @@ module.exports = {
         defaultValue: 0
       },
       createdAt: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
         allowNull: false
       },
       updatedAt: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
         allowNull: false
       }
     });
