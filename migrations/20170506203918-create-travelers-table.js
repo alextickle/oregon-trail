@@ -6,7 +6,6 @@ module.exports = {
       id: {
         type: Sequelize.STRING
         allowNull: false,
-        autoIncrement: false,
         primaryKey: true,
         defaultValue: () => pushid()
       },

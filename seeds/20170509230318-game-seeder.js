@@ -4,17 +4,25 @@ module.exports = {
       'Games',
       [
         {
-          recentlyBroken: 'h',
-          recentlyRecovered: 'h',
-          recentlyDeceased: 'h',
-          recentlyFellIll: 'h',
-          recentlyFound: 'h',
-          loseReason: 'h',
+          id: '-KtximVGkLwYi9IuYYWU',
+          broken: '',
+          recovered: '',
+          dead: '',
+          sick: '',
+          found: '',
+          loseReason: '',
           brokenDown: false,
-          daysSpent: 0,
+          days: 0,
           currentLocation: 0,
-          createdAt: '2004-10-19 10:23:54',
-          updatedAt: '2004-10-19 10:23:54'
+          axles: 0,
+          bullets: 0,
+          clothing: 0,
+          food: 0,
+          oxen: 0,
+          tongues: 0,
+          wheels: 0,
+          createdAt: '2017-09-17 10:23:54',
+          updatedAt: '2017-09-17 10:23:54'
         }
       ],
       {}

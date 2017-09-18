@@ -4,33 +4,32 @@ module.exports = {
   up: function(queryInterface, Sequelize) {
     return queryInterface.createTable('Games', {
       id: {
-        type: Sequelize.DATE
+        type: Sequelize.STRING
         allowNull: false,
-        autoIncrement: false,
         primaryKey: true,
         defaultValue: () => pushid()
       },
-      recentlyBroken: {
+      broken: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: ''
       },
-      recentlyRecovered: {
+      recovered: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: ''
       },
-      recentlyDeceased: {
+      dead: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: ''
       },
-      recentlyFellIll: {
+      sick: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: ''
       },
-      recentlyFound: {
+      found: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: ''
@@ -45,12 +44,47 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
-      daysSpent: {
+      days: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0
       },
       currentLocation: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      axles: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      bullets: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      clothes: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      food: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      oxen: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      tongues: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      wheels: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0

@@ -45,12 +45,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 0
     },
-    oxen: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0
-    },
-    clothing: {
+    axles: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
@@ -60,12 +55,17 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 0
     },
-    wheels: {
+    clothing: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
     },
-    axels: {
+    food: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    }
+    oxen: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
@@ -75,7 +75,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 0
     },
-    food: {
+    wheels: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
