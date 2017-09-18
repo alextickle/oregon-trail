@@ -1,11 +1,11 @@
 <div class="row">
-  <img src="/images/tombstone.gif">
+  <img id="headerImg" src="/images/tombstone.gif">
 </div>
 <div class="row">
   <h1>You lose! {{game.loseReason}}</h1>
 </div>
 <div class="row">
-  {{game-status}}
+  {{> game-status}}
 </div>
 <div class="row">
   <a href="/"><button type="button" name="button">Play Again</button></a>

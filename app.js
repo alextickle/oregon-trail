@@ -19,8 +19,8 @@ app.engine(
 );
 app.set('view engine', 'hbs');
 handlebars.registerHelper('inc', (value, options) => parseInt(value) + 1);
-handlebars.registerPartial('game-status', '{{game-status}}');
-handlebars.compile('{{game-status}}');
+handlebars.registerPartial('game-status', '{{> game-status}}');
+handlebars.compile('{{> game-status}}');
 
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -72,12 +72,13 @@ app.post('/outset', (request, response) => {
 
 app.get('/location', (request, response) =>
   Game.load(request.cookies.gameId)
-    .then(game =>
+    .then(game => {
       response.render('location', {
         game: game.dataValues,
-        travelers: game.travelers
-      })
-    )
+        travelers: game.travelers,
+        location: game.getCurrentLocation()
+      });
+    })
     .catch(error => console.log('error: ', error))
 );
 

@@ -178,7 +178,8 @@ module.exports = function(sequelize, DataTypes) {
     return headCount;
   };
 
-  Game.prototype.getCurrentLocation = () => {
+  Game.prototype.getCurrentLocation = function() {
+    const currentLocation = this.currentLocation;
     const locations = [
       {
         name: 'Chimney Rock',
@@ -221,7 +222,7 @@ module.exports = function(sequelize, DataTypes) {
         source: '/images/the-dalles.jpg'
       }
     ];
-    return locations[this.currentLocation];
+    return locations[currentLocation];
   };
 
   Game.prototype.checkForSick = function() {

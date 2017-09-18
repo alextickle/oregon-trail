@@ -1,9 +1,9 @@
 <div class="row">
-  <img src={{location.source}}>
+  <img id="headerImg" src={{location.source}}>
   <h1>{{message}}</h1>
 </div>
 <div class="row">
-  {{game-status}}
+  {{> game-status}}
 </div>
 <div class="row">
   <a href="/turn"><button type="button" name="button">Continue</button></a>
