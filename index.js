@@ -6,6 +6,11 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const hbs = require('express-handlebars');
+
+app.engine('hbs'. handlebars({extname: 'hbs', defaultLayout: 'layout', layoutsDir: __dirname + '/views/'}))
+app.set('view engine', 'hbs');
+hbs.registerPartial('game-status', '{{ game-status }}')
 
 app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/views');
@@ -19,8 +24,12 @@ app.get('/num-travelers', (request, response) =>
   response.render('num-travelers')
 );
 
-app.post('/travelers', (request, response) =>
-  response.render('travelers', { members: request.body.quantity }));
+app.post('/travelers', (request, response) => {
+  let travelers = [];
+  for (let i = 0; i < request.body.quantity){
+    travelers.push("traveler" + i);
+  }
+  response.render('travelers', { travelers })});
 
 app.post('/outset', (request, response) => {
   let gameId;
@@ -47,9 +56,7 @@ app.get('/location', (request, response) =>
     response.render('location', {
       game: game.dataValues,
       supplies: game.supplies,
-      travelers: game.travelers,
-      locations: game.getLocations(),
-      diseases: game.getDiseases()
+      travelers: game.travelers
     });
   )
   .catch(error => console.log('error: ', error))
@@ -66,8 +73,7 @@ app.get('/turn', (request, response) =>
         game: game.dataValues,
         supplies: game.supplies,
         travelers: game.travelers,
-        locations: game.getLocations(),
-        diseases: game.getDiseases(),
+        imgSrc: game.getLocations()[game.currentLocation].source,
         message: result.message
       });
     )
@@ -85,7 +91,7 @@ app.get('/look-around', (request, response) =>
         game: game.dataValues,
         supplies: game.supplies,
         travelers: game.travelers,
-        locations: game.getLocations()
+        imgSrc: game.getLocations()[game.currentLocation].source
       })
     )
     .catch(error => console.log('error: ', error));
@@ -101,22 +107,15 @@ app.post('/post-hunt/:food/:bullets', (request, response) =>
   Game.load(request.cookies.gameId)
     .then(game => {
       game.supplies.sort(Game.compare);
-      game.supplies[2].quantity = (parseInt(request.params.food) +
-        parseInt(game.supplies[2].quantity)).toString();
-      game.supplies[1].quantity = (parseInt(
-        game.supplies[1].quantity
-      ) - parseInt(request.params.bullets)).toString();
+      game.supplies[2].quantity += parseInt(request.params.food);
+      game.supplies[1].quantity -= parseInt(request.params.bullets);
       return game.saveAll();
     })
     .then(game =>
       response.render('post-hunt', {
         food: food,
         bullets: bullets,
-        game: game.dataValues,
-        supplies: game.supplies,
-        travelers: game.travelers,
-        locations: game.getLocations(),
-        diseases: game.getDiseases()
+        location: game.getCurrentLocation()
       });
     )
     .catch(error => console.log('error: ', error))
@@ -129,8 +128,7 @@ app.get('/continue', (request, response) => {
         game: game.dataValues,
         supplies: game.supplies,
         travelers: game.travelers,
-        locations: game.getLocations(),
-        diseases: game.getDiseases()
+        location: game.getCurrentLocation()
       })
     )
   } else {

@@ -1,11 +1,11 @@
 <div class="row">
-  <img id="headerImg" src="/images/tombstone.gif">
+  <img src="/images/willamette-valley.png">
 </div>
 <div class="row">
-  <h1>You lose! <%= game.loseReason %></h1>
+  <h1>You have arrived in Oregon City!</h1>
 </div>
 <div class="row">
-  <% include partials/game-status %>
+  {{game-status}}
 </div>
 <div class="row">
   <a href="/"><button type="button" name="button">Play Again</button></a>

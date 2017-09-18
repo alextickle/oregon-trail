@@ -3,11 +3,11 @@
 <div class="row">
   <h2>Travelers</h2>
   <form class="" action="/outset" method="post">
-    <% for (let i=1; i<= members; i++) {%>
-      <label>Traveler <%=i%>
-        <input type="text" name=<%="traveler"+i%> value="">
-      </label><br>
-  <% } %>
+    {{#each travelers}}
+    <label>Traveler {{@index}}
+      <input type="text" name={{this}}> value="">
+    </label><br>
+    {{/times}}
     <br>
     <input type="submit" name="" value="Gather Supplies">
   </form>

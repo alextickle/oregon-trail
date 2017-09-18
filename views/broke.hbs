@@ -1,9 +1,9 @@
 <div class="row">
-  <img id="headerImg" src=<%=locations[game.currentLocation].source %>>
-  <h1><%= message %></h1>
+  <img src={{locations[game.currentLocation].source}}>
+  <h1>{{message}}</h1>
 </div>
 <div class="row">
-  <% include partials/game-status %>
+  {{game-status}}
 </div>
 <div class="row">
   <a href="/turn"><button type="button" name="button">Continue</button></a>

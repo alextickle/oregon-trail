@@ -1,0 +1,51 @@
+<div class="row">
+  <table id="players">
+    <thead>
+      <th>Name</th>
+      <th>Status</th>
+      <th>Illness</th>
+    </thead>
+    {{#each}}
+      <tr>
+        <td>{{this.name}}</td>
+        <td>{{this.status}}</td>
+        <td>{{this.disease}}</td>
+      </tr>
+    {{/each}}
+  </table>
+  <table id="supplies">
+    <thead>
+      <th>Supply</th>
+      <th>Quantity</th>
+    </thead>
+    <tr>
+      <td>Oxen</td>
+      <td>{{supplies[3].quantity}}</td>
+    </tr>
+    <tr>
+      <td>Sets of Clothing</td>
+      <td>{{supplies[4].quantity}}</td>
+    </tr>
+    <tr>
+      <td>Bullets</td>
+      <td>{{supplies[1].quantity}}</td>
+    </tr>
+    <tr>
+      <td>Wagon Wheels</td>
+      <td>{{supplies[6].quantity}}</td>
+    </tr>
+    <tr>
+      <td>Wagon Axels</td>
+      <td>{{supplies[0].quantity}}</td>
+    </tr>
+    <tr>
+      <td>Wagon Tongues</td>
+      <td>{{supplies[5].quantity}}</td>
+    </tr>
+    <tr>
+      <td>Pounds of Food</td>
+      <td>{{supplies[2].quantity}}</td>
+    </tr>
+  </table><br>
+  <h4 id="days">Days on the trail: {{game.daysSpent}}</h4>
+</div>

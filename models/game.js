@@ -1,26 +1,26 @@
 module.exports = function(sequelize, DataTypes) {
   const Game = sequelize.define('Game', {
-    recentlyBroken: {
+    broken: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: ''
     },
-    recentlyRecovered: {
+    recovered: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: ''
     },
-    recentlyDeceased: {
+    deceased: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: ''
     },
-    recentlyFellIll: {
+    ill: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: ''
     },
-    recentlyFound: {
+    found: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: ''
@@ -35,7 +35,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       defaultValue: false
     },
-    daysSpent: {
+    days: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
@@ -44,21 +44,48 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
-    }
+    },
+    oxen: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    clothing: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    bullets: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    wheels: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    axels: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    tongues: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    food: {}
   });
 
-  Game.associate = function(models) {
-    Game.hasMany(models.Supply, {
-      foreignKey: 'gameId',
-      as: 'supplies'
-    });
+  Game.associate = models => {
     Game.hasMany(models.Traveler, {
       foreignKey: 'gameId',
       as: 'travelers'
     });
   };
 
-  Game.compare = function(a, b) {
+  Game.compare = (a, b) => {
     if (a.name[0] < b.name[0]) {
       return -1;
     } else {
@@ -66,20 +93,17 @@ module.exports = function(sequelize, DataTypes) {
     }
   };
 
-  Game.load = function(id) {
-    return Game.findById(id, {
+  Game.load = id =>
+    Game.findById(id, {
       include: [
-        {
-          model: Supply,
-          as: 'supplies'
-        },
         {
           model: Traveler,
           as: 'travelers'
         }
       ]
     });
-  };
+
+  Game.listSupplies = ['oxen'];
 
   Game.protoype.checkBrokeDown = function() {
     var indices = [0, 3, 5, 6];
@@ -152,8 +176,8 @@ module.exports = function(sequelize, DataTypes) {
     return false;
   };
 
-  Game.prototype.getLocations = function() {
-    return [
+  Game.prototype.getCurrentLocation = function() {
+    const locations = [
       {
         name: 'Chimney Rock',
         source: '/images/chimney-rock.jpg'
@@ -195,6 +219,7 @@ module.exports = function(sequelize, DataTypes) {
         source: '/images/the-dalles.jpg'
       }
     ];
+    return locations[this.currentLocation];
   };
 
   Game.prototype.getDiseases = function() {
