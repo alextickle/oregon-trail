@@ -19,6 +19,8 @@ app.engine(
 );
 app.set('view engine', 'hbs');
 handlebars.registerHelper('inc', (value, options) => parseInt(value) + 1);
+handlebars.registerPartial('game-status', '{{game-status}}');
+handlebars.compile('{{game-status}}');
 
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -57,9 +59,10 @@ app.post('/outset', (request, response) => {
     })
     .then(() => Game.load(gameId))
     .then(game => {
-      response.cookie('gameId', game.dataValues.id);
+      console.log('GAME: ', game);
+      response.cookie('gameId', game.id);
       response.render('outset', {
-        game: game.dataValues,
+        game: game,
         travelers: game.travelers
       });
     })
