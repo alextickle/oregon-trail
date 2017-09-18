@@ -250,14 +250,31 @@ module.exports = function(sequelize, DataTypes) {
     return sick;
   };
 
+  Game.prototype.printSummary = function() {
+    console.log('--------------GAME----------------');
+    console.log('dead: ', this.dead);
+    console.log('sick: ', this.sick);
+    console.log('found: ', this.found);
+    console.log('brokenDown: ', this.brokenDown);
+    console.log('broken: ', this.broken);
+    console.log('recovered: ', this.recovered);
+    console.log('TRAVELERS:');
+    this.travelers.forEach(traveler => {
+      console.log('name: ', traveler.name);
+      console.log('status: ', traveler.status);
+      console.log('disease: ', traveler.disease);
+    });
+    console.log('--------------------------------');
+  };
+
   Game.prototype.checkForDeaths = function() {
     let death = false;
     this.travelers.forEach(traveler => {
       if (traveler.status === 'sick') {
         if (traveler.checkIfDead()) {
           this.dead = traveler.name;
+          death = true;
         }
-        death = true;
       }
     });
     return death;

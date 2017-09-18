@@ -86,19 +86,15 @@ app.get('/location', (request, response) =>
 );
 
 app.get('/turn', (request, response) => {
-  console.log('');
-  console.log('------------------------BEGIN TURN----------------------------');
   let result;
   Game.load(request.cookies.gameId)
     .then(game => {
+      game.printSummary();
       game.takeTurn();
+      game.printSummary();
       return game.saveAll();
     })
     .then(game => {
-      console.log(
-        '------------------------END TURN----------------------------'
-      );
-      console.log('');
       response.render(game.step, {
         game: game,
         travelers: game.travelers,
