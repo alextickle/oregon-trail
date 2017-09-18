@@ -24,11 +24,11 @@ module.exports = function(sequelize, DataTypes) {
     });
   };
 
-  Traveler.initializeTravelers = function(nameObj, gameId) {
+  Traveler.initializeTravelers = function(names, gameId) {
     const membersToWrite = [];
-    for (let prop in nameObj) {
+    for (let prop in names) {
       membersToWrite.push({
-        name: nameObj[prop],
+        name: names[prop],
         status: 'well',
         disease: 'none',
         gameId: gameId
@@ -57,16 +57,6 @@ module.exports = function(sequelize, DataTypes) {
     return false;
   };
 
-  Traveler.prototype.checkRecovery = function(chance) {
-    let randomNum = Math.floor(Math.random() * chance) + 1;
-    if (randomNum === 1) {
-      this.disease = 'none';
-      this.status = 'well';
-      return true;
-    }
-    return false;
-  };
-
   Traveler.prototype.checkSick = function() {
     const diseases = Traveler.getDiseases();
     diseases.forEach(disease => {
@@ -78,79 +68,98 @@ module.exports = function(sequelize, DataTypes) {
     });
   };
 
-  switch (this.travelers[i].disease) {
-    case 'dysentery':
-      if (this.diseaseRecovery(4, i)) {
-        return true;
-      }
-      break;
-    case 'cholera':
-      if (this.diseaseRecovery(20, i)) {
-        return true;
-      }
-      break;
-    case 'broken leg':
-      if (this.diseaseRecovery(5, i)) {
-        return true;
-      }
-      break;
-    case 'broken arm':
-      if (this.diseaseRecovery(3, i)) {
-        return true;
-      }
-      break;
-    case 'bitten by snake':
-      if (this.diseaseRecovery(10, i)) {
-        return true;
-      }
-      break;
-    case 'influenza':
-      if (this.diseaseRecovery(3, i)) {
-        return true;
-      }
-      break;
-    default:
-      break;
-  }
+  Traveler.prototype.checkIfRecovered = function() {
+    switch (this.disease) {
+      case 'dysentery':
+        if (Traveler.takeChance(4)) {
+          this.disease = 'none';
+          this.status = 'well';
+          return true;
+        }
+        break;
+      case 'cholera':
+        if (Traveler.takeChance(20)) {
+          this.disease = 'none';
+          this.status = 'well';
+          return true;
+        }
+        break;
+      case 'broken leg':
+        if (Traveler.takeChance(5)) {
+          this.disease = 'none';
+          this.status = 'well';
+          return true;
+        }
+        break;
+      case 'broken arm':
+        if (Traveler.takeChance(3)) {
+          this.disease = 'none';
+          this.status = 'well';
+          return true;
+        }
+        break;
+      case 'bitten by snake':
+        if (Traveler.takeChance(10)) {
+          this.disease = 'none';
+          this.status = 'well';
+          return true;
+        }
+        break;
+      case 'influenza':
+        if (Traveler.takeChance(3)) {
+          this.disease = 'none';
+          this.status = 'well';
+          return true;
+        }
+        break;
+      default:
+        return false;
+        break;
+    }
+  };
 
   Traveler.prototype.checkIfDead = function() {
-    if (this.status == 'sick') {
-      switch (this.disease) {
-        case 'dysentery':
-          if (Traveler.takeChance(2)) {
-            return true;
-          }
-          break;
-        case 'cholera':
-          if (Traveler.takeChance(2)) {
-            return true;
-          }
-          break;
-        case 'broken leg':
-          if (Traveler.takeChance(20)) {
-            return true;
-          }
-          break;
-        case 'broken arm':
-          if (Traveler.takeChance(100)) {
-            return true;
-          }
-          break;
-        case 'bitten by snake':
-          if (Traveler.takeChance(3)) {
-            return true;
-          }
-          break;
-        case 'influenza':
-          if (Traveler.takeChance(50)) {
-            return true;
-          }
-          break;
-        default:
-          break;
-      }
+    switch (this.disease) {
+      case 'dysentery':
+        if (Traveler.takeChance(2)) {
+          this.status = 'dead';
+          return true;
+        }
+        break;
+      case 'cholera':
+        if (Traveler.takeChance(2)) {
+          this.status = 'dead';
+          return true;
+        }
+        break;
+      case 'broken leg':
+        if (Traveler.takeChance(20)) {
+          this.status = 'dead';
+          return true;
+        }
+        break;
+      case 'broken arm':
+        if (Traveler.takeChance(100)) {
+          this.status = 'dead';
+          return true;
+        }
+        break;
+      case 'bitten by snake':
+        if (Traveler.takeChance(3)) {
+          this.status = 'dead';
+          return true;
+        }
+        break;
+      case 'influenza':
+        if (Traveler.takeChance(50)) {
+          this.status = 'dead';
+          return true;
+        }
+        break;
+      default:
+        return false;
+        break;
     }
-    return false;
   };
 
   return Traveler;

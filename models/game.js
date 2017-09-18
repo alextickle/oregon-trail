@@ -111,7 +111,7 @@ module.exports = function(sequelize, DataTypes) {
 
   Game.takeChance = chance => Math.floor(Math.random() * chance) === 0;
 
-  Game.protoype.checkBrokeDown = function() {
+  Game.protoype.checkForBreakDown = function() {
     const supplies = ['axles', 'oxen', 'tongues', 'wheels'];
     supplies.forEach(supply => {
       if (this.takeChance(10)) {
@@ -151,8 +151,6 @@ module.exports = function(sequelize, DataTypes) {
     });
     return headCount;
   };
-
-  Game.takeChance = chance => Math.floor(Math.random() * chance) === 0;
 
   Game.prototype.getCurrentLocation = () => {
     const locations = [
@@ -214,10 +212,12 @@ module.exports = function(sequelize, DataTypes) {
 
   Game.prototype.checkForDeaths = function() {
     this.travelers.forEach(traveler => {
-      if (traveler.checkIfDead()) {
-        this.dead = traveler.name;
+      if (traveler.status === 'sick') {
+        if (traveler.checkIfDead()) {
+          this.dead = traveler.name;
+        }
+        return true;
       }
-      return true;
     });
     return false;
   };
@@ -235,50 +235,49 @@ module.exports = function(sequelize, DataTypes) {
   };
 
   Game.prototype.lookAround = function() {
-    this.supplies.sort(Game.compare);
-    for (var i = 0; i < this.supplies.length; i++) {
-      if (this.takeChance(10)) {
-        switch (i) {
-          case 0:
-            this.supplies[6].quantity += 1;
-            this.recentlyFound = 'one wagon wheel.';
+    const supplies = ['axles', 'oxen', 'tongues', 'wheels', 'clothes', 'food'];
+    supplies.forEach(supply => {
+      if (Game.takeChance(10)) {
+        switch (supply) {
+          case 'wheels':
+            this.wheels += 1;
+            this.found = 'one wagon wheel.';
             break;
-          case 1:
-            this.supplies[0].quantity += 1;
-            this.recentlyFound = 'one wagon axle.';
+          case 'axles':
+            this.axles += 1;
+            this.found = 'one wagon axle.';
             break;
-          case 2:
-            this.supplies[5].quantity += 1;
-            this.recentlyFound = 'one wagon tongue.';
+          case 'tongues':
+            this.tongues += 1;
+            this.found = 'one wagon tongue.';
             break;
-          case 3:
-            this.supplies[4].quantity += 3;
-            this.recentlyFound = 'three sets of clothes.';
+          case 'clothes':
+            this.clothes += 3;
+            this.found = 'three sets of clothes.';
             break;
-          case 4:
-            this.supplies[3].quantity += 1;
-            this.recentlyFound = 'one ox.';
+          case 'oxen':
+            this.oxen += 1;
+            this.found = 'one ox.';
             break;
-          case 5:
-            this.supplies[2].quantity += 50;
-            this.recentlyFound = '50 pounds of food.';
+          case 'food':
+            this.food += 50;
+            this.found = '50 pounds of food.';
             break;
           default:
-            this.recentlyFound = 'nothing.';
+            this.found = 'nothing.';
             break;
         }
-        this.daysSpent += 2;
-        this.supplies[2].quantity -= 2 * this.headCount();
+        this.days += 2;
+        this.food -= 2 * this.headCount();
         return true;
       }
-    }
-    this.recentlyFound = 'nothing.';
-    return false;
+      this.recentlyFound = 'nothing.';
+      return false;
+    });
   };
 
   Game.prototype.takeTurn = function() {
-    this.supplies.sort(Game.compare);
-    if (this.currentLocation === this.getLocations().length - 1) {
+    if (this.getCurrentLocation().name === 'The Dalles') {
       return {
         step: 'game-won',
         message: ''
@@ -291,36 +290,36 @@ module.exports = function(sequelize, DataTypes) {
       };
     }
     if (this.checkForDeaths()) {
-      this.daysSpent += 5;
-      this.supplies[2].quantity -= 2 * this.headCount();
-      if (this.supplies[2].quantity < 0) {
-        this.supplies[2].quantity = 0;
+      this.days += 5;
+      this.food -= 2 * this.headCount();
+      if (this.food < 0) {
+        this.food = 0;
       }
       return {
         step: 'dead',
         message: ''
       };
     }
-    if (this.checkRecovered()) {
+    if (this.checkForRecovered()) {
       return {
         step: 'recovered',
         message: ''
       };
     }
-    if (this.checkSick()) {
-      this.daysSpent += 2;
-      this.supplies[2].quantity -= 1 * this.headCount();
-      if (this.supplies[2].quantity < 0) {
-        this.supplies[2].quantity = 0;
+    if (this.checkForSick()) {
+      this.days += 2;
+      this.food -= 1 * this.headCount();
+      if (this.food < 0) {
+        this.food = 0;
       }
       return {
         step: 'sick',
         message: ''
       };
     }
-    if (this.checkBrokeDown()) {
+    if (this.checkForBreakDown()) {
       let msg;
-      switch (this.recentlyBroken) {
+      switch (this.broken) {
         case 'wheels':
           msg = 'One wheel has broken!';
           break;
@@ -342,11 +341,11 @@ module.exports = function(sequelize, DataTypes) {
       };
     }
     this.currentLocation++;
-    this.supplies[2].quantity -= 5 * this.headCount();
-    if (this.supplies[2].quantity < 0) {
-      this.supplies[2].quantity = 0;
+    this.food -= 5 * this.headCount();
+    if (this.food < 0) {
+      this.food = 0;
     }
-    this.daysSpent += 10;
+    this.days += 10;
     return {
       step: 'location',
       msg: ''
@@ -355,20 +354,13 @@ module.exports = function(sequelize, DataTypes) {
 
   Game.prototype.saveAll = function() {
     let promises = [];
-    return this.save()
-      .then(function() {
-        this.supplies.forEach(supply => {
-          promises.push(supply.save());
-        });
-        return Promise.all(promises);
-      })
-      .then(function() {
-        promises = [];
-        this.travelers.forEach(traveler => {
-          promises.push(traveler.save());
-        });
-        return Promise.all(promises);
+    return this.save().then(function() {
+      promises = [];
+      this.travelers.forEach(traveler => {
+        promises.push(traveler.save());
       });
+      return Promise.all(promises);
+    });
   };
 
   return Game;
