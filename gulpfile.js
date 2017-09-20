@@ -5,13 +5,13 @@ const reload = browserSync.reload;
 
 gulp.task('compile-less', function() {
   gulp
-    .src('./src/style.less')
+    .src('./style/style.less')
     .pipe(less())
     .pipe(gulp.dest('./public'));
 });
 
 gulp.task('watch-less', function() {
-  gulp.watch('./src/**/*.less', ['compile-less']);
+  gulp.watch('./style/*.less', ['compile-less']);
 });
 
 gulp.task('serve', function() {
@@ -20,9 +20,8 @@ gulp.task('serve', function() {
       baseDir: './public/'
     }
   });
-  gulp.watch('./src/*.less').on('change', reload);
+  gulp.watch('./style/*.less').on('change', reload);
   gulp.watch('./public/*.html').on('change', reload);
 });
 
 gulp.task('default', ['watch-less', 'serve']);
-s;

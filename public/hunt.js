@@ -1,4 +1,4 @@
-function initGrid() {
+const initGrid = () {
 	var grid = document.getElementById('grid');
 	var currentRow;
 	var currentCell;
@@ -11,7 +11,7 @@ function initGrid() {
 	}
 }
 
-var state = {
+const state = {
 	grid: [],
 	manPos: 10,
 	animalTimer: '',
@@ -20,7 +20,7 @@ var state = {
 	reloaded: true,
 	kills: 0,
 	shots: 0,
-	render: function() {
+	render: function {
 		for (var i = 0; i < 20; i++) {
 			for (var j = 0; j < 20; j++) {
 				if (this.grid[i][j] == 'a') {
@@ -55,15 +55,15 @@ var state = {
 	}
 };
 
-function generateAnimal() {
-	var initialPosition =
+const generateAnimal = () => {
+	const initialPosition =
 		state.clearRows[Math.floor(Math.random() * state.clearRows.length)];
 	state.grid[initialPosition][0] = 'a';
 	state.render();
 	state.animalsMove();
 }
 
-function moveRight() {
+const moveRight = () => {
 	if (state.manPos == 19) {
 		if (state.grid[19][0] != 'a') {
 			state.grid[19][0] = 'm';
@@ -80,7 +80,7 @@ function moveRight() {
 	state.render();
 }
 
-function moveLeft() {
+const moveLeft = () => {
 	if (state.manPos == 0) {
 		if (state.grid[19][19] != 'a') {
 			state.grid[19][19] = 'm';
@@ -97,15 +97,15 @@ function moveLeft() {
 	state.render();
 }
 
-function startAnimals() {
+const startAnimals = () => {
 	state.animalTimer = setInterval(generateAnimal, 1000);
 }
 
-function startHuntTimer() {
+const startHuntTimer() => {
 	state.huntTimer = setInterval(clearAnimalTimer, 20000);
 }
 
-function clearAnimalTimer() {
+const clearAnimalTimer = () => {
 	clearTimeout(state.animalTimer);
 	foodGained = Math.floor(Math.random() * state.kills * 10);
 	document.getElementById('results').innerHTML =
@@ -115,7 +115,7 @@ function clearAnimalTimer() {
 	$('#foodForm').show();
 }
 
-function shoot() {
+const shoot() => {
 	state.shots++;
 	var bulletTimer = setInterval(bulletAdvances, 50);
 	state.reloaded = false;
@@ -123,7 +123,7 @@ function shoot() {
 	state.currentBullet.column = state.manPos;
 }
 
-function bulletAdvances() {
+const bulletAdvances = () => {
 	if (state.currentBullet.row >= 0) {
 		if (state.currentBullet.row == 0) {
 			state.grid[state.currentBullet.row][state.currentBullet.column] = '';
@@ -160,7 +160,7 @@ function bulletAdvances() {
 	state.render();
 }
 
-function populateGrid() {
+const populateGrid() => {
 	var array = [];
 	var currentRow;
 	for (var i = 0; i < 20; i++) {
